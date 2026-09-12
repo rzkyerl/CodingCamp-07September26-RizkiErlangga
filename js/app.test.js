@@ -25,6 +25,8 @@ const {
   formatDate,
   getGreeting,
   buildGreetingMessage,
+  formatTimer,
+  validateDuration,
 } = require('./app.js');
 
 // ---------------------------------------------------------------------------
@@ -467,6 +469,116 @@ const validLinksArb = fc.uniqueArray(validLinkArb, { maxLength: 20, selector: l 
       }),
       { numRuns: 100 }
     );
+  });
+
+  // -------------------------------------------------------------------------
+  // Property 6: Timer format is always MM:SS
+  // Feature: todo-life-dashboard, Property 6: Timer format is always MM:SS
+  // -------------------------------------------------------------------------
+  await test('Property 6 — formatTimer always produces MM:SS format (Req 3.1)', () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 0, max: 7200 }), (seconds) => {
+        const result = formatTimer(seconds);
+
+        // Overall pattern: at least 2 digits for minutes, exactly 2 for seconds.
+        // Minutes can exceed 2 digits for values >= 6000 s (100+ minutes) since
+        // padStart(2) only pads when the value is shorter than 2 chars.
+        assert.match(
+          result,
+          /^\d{2,}:\d{2}$/,
+          `formatTimer(${seconds}) returned "${result}" — does not match \\d{2,}:\\d{2}`
+        );
+
+        // Minutes component must equal Math.floor(seconds / 60), zero-padded to min 2 digits
+        const expectedMins = String(Math.floor(seconds / 60)).padStart(2, '0');
+        // The minutes part is everything before the colon
+        const colonIdx   = result.indexOf(':');
+        const actualMins = result.slice(0, colonIdx);
+        assert.strictEqual(
+          actualMins,
+          expectedMins,
+          `formatTimer(${seconds}) minutes component "${actualMins}" !== expected "${expectedMins}"`
+        );
+
+        // Seconds component must equal seconds % 60, zero-padded
+        const expectedSecs = String(seconds % 60).padStart(2, '0');
+        const actualSecs   = result.slice(colonIdx + 1);
+        assert.strictEqual(
+          actualSecs,
+          expectedSecs,
+          `formatTimer(${seconds}) seconds component "${actualSecs}" !== expected "${expectedSecs}"`
+        );
+
+        return true;
+      }),
+      { numRuns: 100 }
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // Property 7: Duration validation accepts exactly the valid range
+  // Feature: todo-life-dashboard, Property 7: Duration validation accepts exactly the valid range
+  // -------------------------------------------------------------------------
+
+  // Property 7a: valid integers in [1, 120] must return true
+  await test('Property 7a — validateDuration returns true for all integers in [1, 120] (Req 3.9, 4.1, 4.4)', () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 1, max: 120 }), (d) => {
+        assert.strictEqual(
+          validateDuration(d),
+          true,
+          `validateDuration(${d}) should be true but returned false`
+        );
+        return true;
+      }),
+      { numRuns: 100 }
+    );
+  });
+
+  // Property 7b: out-of-range integers must return false
+  await test('Property 7b — validateDuration returns false for out-of-range integers (Req 3.9, 4.1, 4.4)', () => {
+    const outOfRangeArb = fc.integer().filter(d => d < 1 || d > 120);
+    fc.assert(
+      fc.property(outOfRangeArb, (d) => {
+        assert.strictEqual(
+          validateDuration(d),
+          false,
+          `validateDuration(${d}) should be false but returned true`
+        );
+        return true;
+      }),
+      { numRuns: 100 }
+    );
+  });
+
+  // Property 7c: non-integer numbers must return false
+  await test('Property 7c — validateDuration returns false for non-integer numbers (Req 3.9, 4.1, 4.4)', () => {
+    // Generate doubles that are not whole integers (i.e. fractional part != 0)
+    const nonIntegerDoubleArb = fc.double({ noNaN: true, noDefaultInfinity: true })
+      .filter(d => !Number.isInteger(d));
+    fc.assert(
+      fc.property(nonIntegerDoubleArb, (d) => {
+        assert.strictEqual(
+          validateDuration(d),
+          false,
+          `validateDuration(${d}) should be false but returned true`
+        );
+        return true;
+      }),
+      { numRuns: 100 }
+    );
+  });
+
+  // Property 7d: non-number values must return false
+  await test('Property 7d — validateDuration returns false for non-number values (Req 3.9, 4.1, 4.4)', () => {
+    const nonNumberValues = [null, undefined, NaN, '25', '1', '', true, false, {}, [], () => {}];
+    for (const val of nonNumberValues) {
+      assert.strictEqual(
+        validateDuration(val),
+        false,
+        `validateDuration(${String(val)}) should be false but returned true`
+      );
+    }
   });
 
   // ---------------------------------------------------------------------------

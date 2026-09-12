@@ -61,7 +61,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
   - [x] 4.3 Write property test for Theme (Property 22)
     - **Property 22: Theme persistence round-trip** — Validates: Requirements 10.3
 
-- [ ] 5. Greeting panel
+- [x] 5. Greeting panel
   - [x] 5.1 Implement pure Greeting helpers inside `js/app.js`
     - Write `formatTime(date)` — returns `"HH:MM"` (24-hour, zero-padded via `Utils.padTwo`).
     - Write `formatDate(date)` — returns `"Weekday, DD MonthName YYYY"`.
@@ -69,13 +69,13 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - Write `buildGreetingMessage(greeting, name)` — returns `greeting + ", " + name` when name is non-empty trimmed, otherwise `greeting`.
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 2.2_
 
-  - [-] 5.2 Write property tests for Greeting helpers (Properties 1–4)
+  - [x] 5.2 Write property tests for Greeting helpers (Properties 1–4)
     - **Property 1: Time format is always HH:MM** — Validates: Requirements 1.1
     - **Property 2: Date format matches "Weekday, DD MonthName YYYY"** — Validates: Requirements 1.2
     - **Property 3: Greeting covers all hours exhaustively and without overlap** — Validates: Requirements 1.3, 1.4, 1.5, 1.6
     - **Property 4: Greeting message includes name when name is non-empty** — Validates: Requirements 2.2
 
-  - [-] 5.3 Implement `Greeting` module (DOM + persistence) inside `js/app.js`
+  - [x] 5.3 Implement `Greeting` module (DOM + persistence) inside `js/app.js`
     - Write `Greeting.init()` — reads saved name via `Storage.get('tld_name')`, renders time/date/greeting into the `.panel-greeting` DOM nodes, starts `setInterval(tick, 60_000)`, fires first render immediately.
     - Write `Greeting.saveName(name)` — validates 1–50 non-whitespace chars, calls `Storage.set('tld_name', name.trim())`, re-renders greeting.
     - Wire the name input's `blur` and Enter-key `keydown` events to `Greeting.saveName()`.
@@ -86,16 +86,16 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 7. Focus Timer
-  - [~] 7.1 Implement pure Timer helpers inside `js/app.js`
+  - [x] 7.1 Implement pure Timer helpers inside `js/app.js`
     - Write `formatTimer(totalSeconds)` — returns `"MM:SS"` (zero-padded).
     - Write `validateDuration(value)` — returns `true` iff `value` is an integer satisfying `1 ≤ value ≤ 120`.
     - _Requirements: 3.1, 3.9, 4.1, 4.4_
 
-  - [~] 7.2 Write property tests for Timer helpers (Properties 6–7)
+  - [x] 7.2 Write property tests for Timer helpers (Properties 6–7)
     - **Property 6: Timer format is always MM:SS** — Validates: Requirements 3.1
     - **Property 7: Duration validation accepts exactly the valid range** — Validates: Requirements 3.9, 4.1, 4.4
 
-  - [~] 7.3 Implement `Timer` module (state machine + DOM) inside `js/app.js`
+  - [x] 7.3 Implement `Timer` module (state machine + DOM) inside `js/app.js`
     - Declare module-scoped state: `_state` (`'STOPPED'|'RUNNING'|'PAUSED'`), `_remaining` (seconds), `_duration` (minutes), `_pendingDuration`, `_intervalId`.
     - Write `Timer.init()` — loads duration from `Storage.get('tld_duration')`, validates, renders display, attaches Start/Stop/Reset button listeners.
     - Write `Timer.start()` — transitions `STOPPED/PAUSED → RUNNING`, starts `setInterval` tick (1 s), updates button states.
@@ -106,14 +106,14 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - Wire the duration input's `change`/`blur` to `Timer.setDuration()`.
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 3.10, 4.1, 4.2, 4.3, 4.4, 4.5_
 
-  - [~] 7.4 Implement Web Audio API end-of-session alert inside `js/app.js`
+  - [-] 7.4 Implement Web Audio API end-of-session alert inside `js/app.js`
     - Create `AudioContext` lazily on first user interaction (store in a module-scoped variable).
     - On session end, create an `OscillatorNode` (sine wave, ~440 Hz, ~0.5 s duration), connect to destination, start and stop.
     - If `AudioContext` is unsupported, skip audio silently; the `.timer-notification` overlay still shows.
     - Dismiss the `.timer-notification` overlay on the next Start or Reset call.
     - _Requirements: 3.6_
 
-  - [~] 7.5 Write property test for Timer duration round-trip (Property 8)
+  - [-] 7.5 Write property test for Timer duration round-trip (Property 8)
     - **Property 8: Pomodoro duration localStorage round-trip** — Validates: Requirements 4.3
 
 - [~] 8. Checkpoint — Timer

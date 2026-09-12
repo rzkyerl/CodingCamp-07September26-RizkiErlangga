@@ -423,6 +423,303 @@ const Greeting = {
 };
 
 // =============================================================================
+// Timer helpers — pure functions (no DOM dependencies).
+// =============================================================================
+
+/**
+ * Formats a duration in total seconds as "MM:SS" (both components zero-padded).
+ * e.g. formatTimer(90) → "01:30", formatTimer(3600) → "60:00"
+ * @param {number} totalSeconds — non-negative integer
+ * @returns {string}
+ */
+function formatTimer(totalSeconds) {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return Utils.padTwo(minutes) + ':' + Utils.padTwo(seconds);
+}
+
+/**
+ * Validates a Pomodoro duration value.
+ * Returns true iff value is a whole integer satisfying 1 ≤ value ≤ 120.
+ * Rejects: non-numbers, non-integers (e.g. 1.5), out-of-range values,
+ * NaN, null, undefined, strings, etc.
+ * @param {*} value
+ * @returns {boolean}
+ */
+function validateDuration(value) {
+  return (
+    typeof value === 'number' &&
+    Number.isFinite(value) &&
+    Number.isInteger(value) &&
+    value >= 1 &&
+    value <= 120
+  );
+}
+
+// =============================================================================
+// Timer Module
+// Countdown state machine (STOPPED / RUNNING / PAUSED) that drives the focus
+// timer panel.  All DOM access is null-guarded so the module does not crash
+// when running inside the Node.js test harness.
+// =============================================================================
+
+// --------------- module-scoped state ----------------------------------------
+/** @type {'STOPPED'|'RUNNING'|'PAUSED'} */
+let _timerState = 'STOPPED';
+
+/** Remaining seconds in the current session. */
+let _remaining = 25 * 60;
+
+/** Currently active duration in minutes. */
+let _duration = 25;
+
+/**
+ * Duration (minutes) queued while a session is running.
+ * Applied the next time the timer resets.
+ * @type {number|null}
+ */
+let _pendingDuration = null;
+
+/** @type {number|null} setInterval handle for the 1-second tick. */
+let _timerIntervalId = null;
+
+// --------------- private helpers --------------------------------------------
+
+/**
+ * Stub for the Web Audio API alert — implemented in task 7.4.
+ * Called when the countdown reaches zero.
+ */
+function _playTimerAlert() {
+  // Intentionally empty; real implementation added in task 7.4.
+}
+
+/**
+ * Writes the current `_remaining` value to `#timer-display`.
+ */
+function _renderTimerDisplay() {
+  const display = document.getElementById('timer-display');
+  if (display) display.textContent = formatTimer(_remaining);
+}
+
+/**
+ * Enables/disables the three timer buttons to match `_timerState`.
+ *
+ * Button states:
+ *   STOPPED → Start=enabled, Stop=disabled,  Reset=enabled
+ *   RUNNING → Start=disabled, Stop=enabled,  Reset=disabled
+ *   PAUSED  → Start=enabled,  Stop=disabled, Reset=enabled
+ */
+function _updateTimerButtons() {
+  const startBtn = document.getElementById('timer-start');
+  const stopBtn  = document.getElementById('timer-stop');
+  const resetBtn = document.getElementById('timer-reset');
+
+  if (!startBtn || !stopBtn || !resetBtn) return;
+
+  if (_timerState === 'RUNNING') {
+    startBtn.disabled = true;
+    stopBtn.disabled  = false;
+    resetBtn.disabled = true;
+  } else {
+    // STOPPED or PAUSED
+    startBtn.disabled = false;
+    stopBtn.disabled  = true;
+    resetBtn.disabled = false;
+  }
+}
+
+/**
+ * Internal tick called every 1 second while RUNNING.
+ * Decrements `_remaining`; handles session end when it reaches 0.
+ */
+function _timerTick() {
+  _remaining -= 1;
+  _renderTimerDisplay();
+
+  if (_remaining <= 0) {
+    _remaining = 0;
+    // Stop the interval first.
+    clearInterval(_timerIntervalId);
+    _timerIntervalId = null;
+    _timerState = 'STOPPED';
+
+    // Update buttons to reflect STOPPED state.
+    _updateTimerButtons();
+
+    // Audible alert (stub — full implementation in task 7.4).
+    _playTimerAlert();
+
+    // Show the visual notification overlay.
+    const notification = document.querySelector('.timer-notification');
+    if (notification) notification.classList.add('visible');
+  }
+}
+
+// --------------- public API -------------------------------------------------
+
+const Timer = {
+  /**
+   * Loads the persisted duration from Storage, validates it, renders the
+   * initial display, and wires all button / input event listeners.
+   * Called once from DOMContentLoaded.
+   */
+  init() {
+    // Restore persisted duration, falling back to 25 min on any problem.
+    const stored = Storage.get(KEYS.DURATION);
+    const parsed = stored !== null ? parseInt(stored, 10) : NaN;
+    _duration  = validateDuration(parsed) ? parsed : 25;
+    _remaining = _duration * 60;
+
+    // Initial render.
+    _renderTimerDisplay();
+    _updateTimerButtons();
+
+    // Pre-fill the duration input with the active duration.
+    const durationInput = document.getElementById('timer-duration');
+    if (durationInput) {
+      durationInput.value = _duration;
+
+      // Apply the new duration when the user changes the input value.
+      durationInput.addEventListener('change', () => {
+        Timer.setDuration(parseInt(durationInput.value, 10));
+      });
+      durationInput.addEventListener('blur', () => {
+        Timer.setDuration(parseInt(durationInput.value, 10));
+      });
+    }
+
+    // Wire Start button.
+    const startBtn = document.getElementById('timer-start');
+    if (startBtn) {
+      startBtn.addEventListener('click', () => Timer.start());
+    }
+
+    // Wire Stop button.
+    const stopBtn = document.getElementById('timer-stop');
+    if (stopBtn) {
+      stopBtn.addEventListener('click', () => Timer.stop());
+    }
+
+    // Wire Reset button.
+    const resetBtn = document.getElementById('timer-reset');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => Timer.reset());
+    }
+  },
+
+  /**
+   * Starts the countdown.
+   * Valid transitions: STOPPED → RUNNING, PAUSED → RUNNING.
+   * No-op if already RUNNING.
+   */
+  start() {
+    if (_timerState === 'RUNNING') return;
+
+    // Dismiss the notification overlay if visible (re-starting after session end).
+    const notification = document.querySelector('.timer-notification');
+    if (notification) notification.classList.remove('visible');
+
+    _timerState = 'RUNNING';
+    _updateTimerButtons();
+
+    // Guard against double-start.
+    if (_timerIntervalId !== null) clearInterval(_timerIntervalId);
+    _timerIntervalId = setInterval(_timerTick, 1_000);
+  },
+
+  /**
+   * Pauses the countdown.
+   * Valid transition: RUNNING → PAUSED.
+   * No-op if not currently RUNNING.
+   */
+  stop() {
+    if (_timerState !== 'RUNNING') return;
+
+    clearInterval(_timerIntervalId);
+    _timerIntervalId = null;
+    _timerState = 'PAUSED';
+    _updateTimerButtons();
+  },
+
+  /**
+   * Resets the timer to the current (or pending) duration.
+   * Valid transitions: RUNNING → STOPPED (also stops tick), PAUSED → STOPPED,
+   * STOPPED → STOPPED.
+   */
+  reset() {
+    // Stop any running tick.
+    if (_timerIntervalId !== null) {
+      clearInterval(_timerIntervalId);
+      _timerIntervalId = null;
+    }
+
+    // Apply a queued duration change if there is one.
+    if (_pendingDuration !== null) {
+      _duration = _pendingDuration;
+      _pendingDuration = null;
+
+      // Sync the duration input to the newly applied value.
+      const durationInput = document.getElementById('timer-duration');
+      if (durationInput) durationInput.value = _duration;
+    }
+
+    _timerState = 'STOPPED';
+    _remaining  = _duration * 60;
+
+    // Dismiss the notification overlay.
+    const notification = document.querySelector('.timer-notification');
+    if (notification) notification.classList.remove('visible');
+
+    _renderTimerDisplay();
+    _updateTimerButtons();
+  },
+
+  /**
+   * Validates and applies (or queues) a new Pomodoro duration.
+   *
+   * - If the timer is NOT running: applies immediately, resets the display.
+   * - If the timer IS running: stores as `_pendingDuration`; applied on next Reset.
+   * - Always persists to Storage.
+   * - Rejects invalid values, shows `#timer-duration-error`, restores input.
+   *
+   * @param {number} mins — new duration in minutes
+   */
+  setDuration(mins) {
+    const errEl = document.getElementById('timer-duration-error');
+    const durationInput = document.getElementById('timer-duration');
+
+    if (!validateDuration(mins)) {
+      const msg = 'Duration must be a whole number between 1 and 120 minutes.';
+      if (errEl) errEl.textContent = msg;
+      // Restore the input to the current valid duration.
+      if (durationInput) durationInput.value = _duration;
+      return;
+    }
+
+    // Clear any previous error.
+    if (errEl) errEl.textContent = '';
+
+    // Persist the new value.
+    const ok = Storage.set(KEYS.DURATION, String(mins));
+    if (!ok) {
+      const banner = document.getElementById('storage-banner');
+      if (banner) banner.classList.add('visible');
+    }
+
+    if (_timerState === 'RUNNING') {
+      // Queue the change — apply when the session ends and timer resets.
+      _pendingDuration = mins;
+    } else {
+      // Apply immediately and reset the display.
+      _duration  = mins;
+      _remaining = _duration * 60;
+      _pendingDuration = null;
+      _renderTimerDisplay();
+    }
+  },
+};
+
+// =============================================================================
 // Node.js export guard — allows pure helpers to be imported in test files
 // while the file continues to work as a plain browser <script>.
 // =============================================================================
@@ -442,5 +739,7 @@ if (typeof module !== 'undefined') {
     formatDate,
     getGreeting,
     buildGreetingMessage,
+    formatTimer,
+    validateDuration,
   };
 }

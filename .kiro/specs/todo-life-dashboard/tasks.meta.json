@@ -7,6 +7,10 @@
     "4.3 Write property test for Theme (Property 22)": {
       "status": "passed",
       "lastRunTimestamp": 1789187512397
+    },
+    "7.2 Write property tests for Timer helpers (Properties 6–7)": {
+      "status": "passed",
+      "lastRunTimestamp": 1789188829256
     }
   },
   "executionHistory": {
@@ -146,6 +150,11 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789187550244
+      },
+      {
+        "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
+        "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
+        "timestamp": 1789187969476
       }
     ],
     "5.3 Implement `Greeting` module (DOM + persistence) inside `js/app.js`": [
@@ -158,6 +167,11 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789187550892
+      },
+      {
+        "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
+        "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
+        "timestamp": 1789187987204
       }
     ],
     "6. Checkpoint — Greeting and Theme": [
@@ -172,6 +186,16 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789186692421
+      },
+      {
+        "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
+        "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
+        "timestamp": 1789188001943
+      },
+      {
+        "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
+        "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
+        "timestamp": 1789188083824
       }
     ],
     "7.2 Write property tests for Timer helpers (Properties 6–7)": [
@@ -179,6 +203,16 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789186692484
+      },
+      {
+        "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
+        "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
+        "timestamp": 1789188091451
+      },
+      {
+        "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
+        "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
+        "timestamp": 1789189262829
       }
     ],
     "7.3 Implement `Timer` module (state machine + DOM) inside `js/app.js`": [
@@ -186,6 +220,16 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789186692540
+      },
+      {
+        "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
+        "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
+        "timestamp": 1789188090635
+      },
+      {
+        "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
+        "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
+        "timestamp": 1789189264273
       }
     ],
     "7.4 Implement Web Audio API end-of-session alert inside `js/app.js`": [
@@ -193,6 +237,11 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789186692587
+      },
+      {
+        "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
+        "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
+        "timestamp": 1789189271487
       }
     ],
     "7.5 Write property test for Timer duration round-trip (Property 8)": [
@@ -200,6 +249,11 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789186692622
+      },
+      {
+        "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
+        "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
+        "timestamp": 1789189272113
       }
     ],
     "8. Checkpoint — Timer": [
@@ -347,6 +401,13 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789187540619
+      }
+    ],
+    "5. Greeting panel": [
+      {
+        "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
+        "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
+        "timestamp": 1789187987281
       }
     ]
   }
