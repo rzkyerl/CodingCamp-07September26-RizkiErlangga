@@ -1283,3 +1283,867 @@ const validLinksArb = fc.uniqueArray(validLinkArb, { maxLength: 20, selector: l 
   if (bFailed > 0) process.exit(1);
   else process.stdout.write('All task property tests passed.\n\n');
 })();
+
+// ---------------------------------------------------------------------------
+// Unit tests for Greeting helpers: formatTime, formatDate, getGreeting,
+// buildGreetingMessage
+// Task 15.1
+// ---------------------------------------------------------------------------
+
+(async () => {
+  process.stdout.write('\nGreeting Helper Unit Tests (Task 15.1)\n');
+  process.stdout.write('======================================\n\n');
+
+  const {
+    formatTime,
+    formatDate,
+    getGreeting,
+    buildGreetingMessage,
+  } = require('./app.js');
+
+  // -------------------------------------------------------------------------
+  // formatTime
+  // -------------------------------------------------------------------------
+  await test('formatTime — 09:05 for 9h 5m', () => {
+    assert.strictEqual(formatTime(new Date('2024-01-01T09:05:00')), '09:05');
+  });
+
+  await test('formatTime — 00:00 for midnight', () => {
+    assert.strictEqual(formatTime(new Date('2024-01-01T00:00:00')), '00:00');
+  });
+
+  await test('formatTime — 23:59 for end of day', () => {
+    assert.strictEqual(formatTime(new Date('2024-01-01T23:59:00')), '23:59');
+  });
+
+  // -------------------------------------------------------------------------
+  // formatDate
+  // -------------------------------------------------------------------------
+  await test('formatDate — 2024-09-16 contains correct weekday, day, month, year', () => {
+    // 2024-09-16 is a Monday
+    const result = formatDate(new Date('2024-09-16T00:00:00'));
+    assert.ok(result.includes('Monday'),   `Expected "Monday" in "${result}"`);
+    assert.ok(result.includes('16'),        `Expected "16" in "${result}"`);
+    assert.ok(result.includes('September'), `Expected "September" in "${result}"`);
+    assert.ok(result.includes('2024'),      `Expected "2024" in "${result}"`);
+  });
+
+  await test('formatDate — day is zero-padded for single-digit days (Jan 5)', () => {
+    // 2024-01-05 is a Friday
+    const result = formatDate(new Date('2024-01-05T00:00:00'));
+    assert.ok(
+      result.includes('05'),
+      `Expected zero-padded "05" in "${result}"`
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // getGreeting
+  // -------------------------------------------------------------------------
+  await test('getGreeting(0) === "Good night"', () => {
+    assert.strictEqual(getGreeting(0), 'Good night');
+  });
+
+  await test('getGreeting(4) === "Good night"', () => {
+    assert.strictEqual(getGreeting(4), 'Good night');
+  });
+
+  await test('getGreeting(5) === "Good morning"', () => {
+    assert.strictEqual(getGreeting(5), 'Good morning');
+  });
+
+  await test('getGreeting(11) === "Good morning"', () => {
+    assert.strictEqual(getGreeting(11), 'Good morning');
+  });
+
+  await test('getGreeting(12) === "Good afternoon"', () => {
+    assert.strictEqual(getGreeting(12), 'Good afternoon');
+  });
+
+  await test('getGreeting(17) === "Good afternoon"', () => {
+    assert.strictEqual(getGreeting(17), 'Good afternoon');
+  });
+
+  await test('getGreeting(18) === "Good evening"', () => {
+    assert.strictEqual(getGreeting(18), 'Good evening');
+  });
+
+  await test('getGreeting(20) === "Good evening"', () => {
+    assert.strictEqual(getGreeting(20), 'Good evening');
+  });
+
+  await test('getGreeting(21) === "Good night"', () => {
+    assert.strictEqual(getGreeting(21), 'Good night');
+  });
+
+  await test('getGreeting(23) === "Good night"', () => {
+    assert.strictEqual(getGreeting(23), 'Good night');
+  });
+
+  // -------------------------------------------------------------------------
+  // buildGreetingMessage
+  // -------------------------------------------------------------------------
+  await test('buildGreetingMessage — includes name when non-empty', () => {
+    assert.strictEqual(
+      buildGreetingMessage('Good morning', 'Alice'),
+      'Good morning, Alice'
+    );
+  });
+
+  await test('buildGreetingMessage — trims name before appending', () => {
+    assert.strictEqual(
+      buildGreetingMessage('Good morning', '  Bob  '),
+      'Good morning, Bob'
+    );
+  });
+
+  await test('buildGreetingMessage — returns greeting alone when name is empty string', () => {
+    assert.strictEqual(
+      buildGreetingMessage('Good morning', ''),
+      'Good morning'
+    );
+  });
+
+  await test('buildGreetingMessage — returns greeting alone when name is whitespace-only', () => {
+    assert.strictEqual(
+      buildGreetingMessage('Good morning', '   '),
+      'Good morning'
+    );
+  });
+
+  await test('buildGreetingMessage — returns greeting alone when name is null', () => {
+    assert.strictEqual(
+      buildGreetingMessage('Good morning', null),
+      'Good morning'
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // Block summary
+  // -------------------------------------------------------------------------
+  const unitTestNames = [
+    'formatTime',
+    'formatDate',
+    'getGreeting',
+    'buildGreetingMessage',
+  ];
+  const blockResults = results.filter(r =>
+    unitTestNames.some(prefix => r.name.startsWith(prefix)) ||
+    r.name.includes('Good morning') ||
+    r.name.includes('Good afternoon') ||
+    r.name.includes('Good evening') ||
+    r.name.includes('Good night') ||
+    r.name.startsWith('formatTime') ||
+    r.name.startsWith('formatDate') ||
+    r.name.startsWith('getGreeting') ||
+    r.name.startsWith('buildGreetingMessage')
+  );
+  const bPassed = blockResults.filter(r => r.passed).length;
+  const bFailed = blockResults.filter(r => !r.passed).length;
+  process.stdout.write('\n-------------------------------------------\n');
+  process.stdout.write(`Block results (Greeting unit tests): ${bPassed}/${blockResults.length} passed`);
+  if (bFailed > 0) process.stdout.write(`, ${bFailed} failed`);
+  process.stdout.write('\n');
+  if (bFailed > 0) process.exit(1);
+  else process.stdout.write('All greeting unit tests passed.\n\n');
+})();
+
+// ---------------------------------------------------------------------------
+// Task 15.2: Unit tests for Timer helpers — formatTimer and validateDuration
+// Feature: todo-life-dashboard
+// ---------------------------------------------------------------------------
+
+(async () => {
+  process.stdout.write('\nTimer Helper Unit Tests (Task 15.2)\n');
+  process.stdout.write('====================================\n\n');
+
+  const { formatTimer, validateDuration } = require('./app.js');
+
+  // ---- formatTimer --------------------------------------------------------
+
+  await test('formatTimer(0) === "00:00"', () => {
+    assert.strictEqual(formatTimer(0), '00:00');
+  });
+
+  await test('formatTimer(60) === "01:00"', () => {
+    assert.strictEqual(formatTimer(60), '01:00');
+  });
+
+  await test('formatTimer(90) === "01:30"', () => {
+    assert.strictEqual(formatTimer(90), '01:30');
+  });
+
+  await test('formatTimer(1500) === "25:00" (25 minutes)', () => {
+    assert.strictEqual(formatTimer(1500), '25:00');
+  });
+
+  await test('formatTimer(7200) === "120:00" (120 minutes)', () => {
+    assert.strictEqual(formatTimer(7200), '120:00');
+  });
+
+  await test('formatTimer(61) === "01:01"', () => {
+    assert.strictEqual(formatTimer(61), '01:01');
+  });
+
+  await test('formatTimer(3661) === "61:01"', () => {
+    assert.strictEqual(formatTimer(3661), '61:01');
+  });
+
+  // ---- validateDuration ---------------------------------------------------
+
+  await test('validateDuration(1) === true', () => {
+    assert.strictEqual(validateDuration(1), true);
+  });
+
+  await test('validateDuration(25) === true', () => {
+    assert.strictEqual(validateDuration(25), true);
+  });
+
+  await test('validateDuration(120) === true', () => {
+    assert.strictEqual(validateDuration(120), true);
+  });
+
+  await test('validateDuration(0) === false', () => {
+    assert.strictEqual(validateDuration(0), false);
+  });
+
+  await test('validateDuration(121) === false', () => {
+    assert.strictEqual(validateDuration(121), false);
+  });
+
+  await test('validateDuration(-1) === false', () => {
+    assert.strictEqual(validateDuration(-1), false);
+  });
+
+  await test('validateDuration(1.5) === false', () => {
+    assert.strictEqual(validateDuration(1.5), false);
+  });
+
+  await test('validateDuration(NaN) === false', () => {
+    assert.strictEqual(validateDuration(NaN), false);
+  });
+
+  await test('validateDuration(null) === false', () => {
+    assert.strictEqual(validateDuration(null), false);
+  });
+
+  await test('validateDuration("25") === false', () => {
+    assert.strictEqual(validateDuration('25'), false);
+  });
+
+  await test('validateDuration(undefined) === false', () => {
+    assert.strictEqual(validateDuration(undefined), false);
+  });
+
+  // ---- Block summary ------------------------------------------------------
+  const blockNames = [
+    'formatTimer(0)',
+    'formatTimer(60)',
+    'formatTimer(90)',
+    'formatTimer(1500)',
+    'formatTimer(7200)',
+    'formatTimer(61)',
+    'formatTimer(3661)',
+    'validateDuration(1)',
+    'validateDuration(25)',
+    'validateDuration(120)',
+    'validateDuration(0)',
+    'validateDuration(121)',
+    'validateDuration(-1)',
+    'validateDuration(1.5)',
+    'validateDuration(NaN)',
+    'validateDuration(null)',
+    'validateDuration("25")',
+    'validateDuration(undefined)',
+  ];
+
+  const blockResults = results.filter(r => blockNames.some(n => r.name.startsWith(n)));
+  const bPassed = blockResults.filter(r => r.passed).length;
+  const bFailed = blockResults.filter(r => !r.passed).length;
+
+  process.stdout.write('\n-------------------------------------------\n');
+  process.stdout.write(`Block results (Timer helper unit tests): ${bPassed}/${blockResults.length} passed`);
+  if (bFailed > 0) process.stdout.write(`, ${bFailed} failed`);
+  process.stdout.write('\n');
+  if (bFailed > 0) process.exit(1);
+  else process.stdout.write('All Timer helper unit tests passed.\n\n');
+})();
+
+// ---------------------------------------------------------------------------
+// Unit Tests for Task helpers (Task 15.3)
+// Deterministic, concrete-input/expected-output tests.
+// ---------------------------------------------------------------------------
+
+(async () => {
+  process.stdout.write('\nUnit Tests — Task Helpers (Task 15.3)\n');
+  process.stdout.write('=====================================\n\n');
+
+  const {
+    validateTaskTitle,
+    isDuplicate,
+    createTask,
+    toggleTask,
+    editTask,
+    deleteTask,
+    sortTasks,
+    serializeTasks,
+    deserializeTasks,
+  } = require('./app.js');
+
+  // -------------------------------------------------------------------------
+  // validateTaskTitle
+  // -------------------------------------------------------------------------
+
+  await test('validateTaskTitle — valid title returns valid=true', () => {
+    assert.strictEqual(validateTaskTitle('Buy milk').valid, true);
+  });
+
+  await test('validateTaskTitle — empty string returns valid=false', () => {
+    assert.strictEqual(validateTaskTitle('').valid, false);
+  });
+
+  await test('validateTaskTitle — whitespace-only returns valid=false', () => {
+    assert.strictEqual(validateTaskTitle('   ').valid, false);
+  });
+
+  await test('validateTaskTitle — 201-char title returns valid=false', () => {
+    assert.strictEqual(validateTaskTitle('a'.repeat(201)).valid, false);
+  });
+
+  await test('validateTaskTitle — 200-char title returns valid=true', () => {
+    assert.strictEqual(validateTaskTitle('a'.repeat(200)).valid, true);
+  });
+
+  await test('validateTaskTitle — single char title returns valid=true', () => {
+    assert.strictEqual(validateTaskTitle('x').valid, true);
+  });
+
+  // -------------------------------------------------------------------------
+  // isDuplicate
+  // -------------------------------------------------------------------------
+
+  await test('isDuplicate — exact match returns true', () => {
+    const tasks = [createTask('Buy milk'), createTask('Walk dog')];
+    assert.strictEqual(isDuplicate(tasks, 'Buy milk'), true);
+  });
+
+  await test('isDuplicate — case-insensitive match returns true', () => {
+    const tasks = [createTask('Buy milk'), createTask('Walk dog')];
+    assert.strictEqual(isDuplicate(tasks, 'buy milk'), true);
+  });
+
+  await test('isDuplicate — trim-invariant match returns true', () => {
+    const tasks = [createTask('Buy milk'), createTask('Walk dog')];
+    assert.strictEqual(isDuplicate(tasks, '  Buy Milk  '), true);
+  });
+
+  await test('isDuplicate — no match returns false', () => {
+    const tasks = [createTask('Buy milk'), createTask('Walk dog')];
+    assert.strictEqual(isDuplicate(tasks, 'Read book'), false);
+  });
+
+  await test('isDuplicate — empty array always returns false', () => {
+    assert.strictEqual(isDuplicate([], 'anything'), false);
+  });
+
+  // -------------------------------------------------------------------------
+  // createTask
+  // -------------------------------------------------------------------------
+
+  await test('createTask — title is trimmed', () => {
+    const t = createTask('  Hello World  ');
+    assert.strictEqual(t.title, 'Hello World');
+  });
+
+  await test('createTask — completed starts as false', () => {
+    const t = createTask('Test task');
+    assert.strictEqual(t.completed, false);
+  });
+
+  await test('createTask — id is a string', () => {
+    const t = createTask('Test task');
+    assert.strictEqual(typeof t.id, 'string');
+  });
+
+  await test('createTask — createdAt is a number', () => {
+    const t = createTask('Test task');
+    assert.strictEqual(typeof t.createdAt, 'number');
+  });
+
+  await test('createTask — each call produces a unique id', () => {
+    const t1 = createTask('Task one');
+    const t2 = createTask('Task two');
+    assert.notStrictEqual(t1.id, t2.id);
+  });
+
+  // -------------------------------------------------------------------------
+  // toggleTask
+  // -------------------------------------------------------------------------
+
+  await test('toggleTask — false → true', () => {
+    const t = createTask('test'); // completed=false
+    assert.strictEqual(toggleTask(t).completed, true);
+  });
+
+  await test('toggleTask — true → false (double toggle restores original)', () => {
+    const t = createTask('test');
+    assert.strictEqual(toggleTask(toggleTask(t)).completed, false);
+  });
+
+  await test('toggleTask — id is preserved', () => {
+    const t = createTask('test');
+    assert.strictEqual(toggleTask(t).id, t.id);
+  });
+
+  await test('toggleTask — title is preserved', () => {
+    const t = createTask('test title');
+    assert.strictEqual(toggleTask(t).title, t.title);
+  });
+
+  await test('toggleTask — createdAt is preserved', () => {
+    const t = createTask('test');
+    assert.strictEqual(toggleTask(t).createdAt, t.createdAt);
+  });
+
+  await test('toggleTask — original task is not mutated', () => {
+    const t = createTask('test');
+    toggleTask(t);
+    assert.strictEqual(t.completed, false);
+  });
+
+  // -------------------------------------------------------------------------
+  // editTask
+  // -------------------------------------------------------------------------
+
+  await test('editTask — title is updated and trimmed', () => {
+    const t3 = createTask('Old title');
+    const edited = editTask(t3, '  New title  ');
+    assert.strictEqual(edited.title, 'New title');
+  });
+
+  await test('editTask — id is preserved', () => {
+    const t3 = createTask('Old title');
+    const edited = editTask(t3, 'New title');
+    assert.strictEqual(edited.id, t3.id);
+  });
+
+  await test('editTask — completed is preserved', () => {
+    const t3 = createTask('Old title');
+    const edited = editTask(t3, 'New title');
+    assert.strictEqual(edited.completed, t3.completed);
+  });
+
+  await test('editTask — createdAt is preserved', () => {
+    const t3 = createTask('Old title');
+    const edited = editTask(t3, 'New title');
+    assert.strictEqual(edited.createdAt, t3.createdAt);
+  });
+
+  await test('editTask — original task is not mutated', () => {
+    const t3 = createTask('Old title');
+    editTask(t3, 'New title');
+    assert.strictEqual(t3.title, 'Old title');
+  });
+
+  // -------------------------------------------------------------------------
+  // deleteTask
+  // -------------------------------------------------------------------------
+
+  await test('deleteTask — result length is one less than original', () => {
+    const tasks2 = [createTask('A'), createTask('B'), createTask('C')];
+    const after = deleteTask(tasks2, tasks2[1].id);
+    assert.strictEqual(after.length, 2);
+  });
+
+  await test('deleteTask — deleted task is not in the result', () => {
+    const tasks2 = [createTask('A'), createTask('B'), createTask('C')];
+    const targetId = tasks2[1].id;
+    const after = deleteTask(tasks2, targetId);
+    assert.strictEqual(after.every(t => t.id !== targetId), true);
+  });
+
+  await test('deleteTask — task title "B" is absent after deleting it', () => {
+    const tasks2 = [createTask('A'), createTask('B'), createTask('C')];
+    const after = deleteTask(tasks2, tasks2[1].id);
+    assert.strictEqual(after.every(t => t.title !== 'B'), true);
+  });
+
+  await test('deleteTask — original array is not mutated', () => {
+    const tasks2 = [createTask('A'), createTask('B'), createTask('C')];
+    deleteTask(tasks2, tasks2[1].id);
+    assert.strictEqual(tasks2.length, 3);
+  });
+
+  await test('deleteTask — non-existent id returns same-length array (no-op)', () => {
+    const tasks2 = [createTask('A'), createTask('B')];
+    const after = deleteTask(tasks2, 'non-existent-id');
+    assert.strictEqual(after.length, 2);
+  });
+
+  await test('deleteTask — empty array returns empty array', () => {
+    const after = deleteTask([], 'any-id');
+    assert.strictEqual(after.length, 0);
+  });
+
+  // -------------------------------------------------------------------------
+  // sortTasks
+  // -------------------------------------------------------------------------
+
+  await test('sortTasks("default") — empty array returns empty array', () => {
+    assert.strictEqual(sortTasks([], 'default').length, 0);
+  });
+
+  await test('sortTasks("default") — newest task appears first', () => {
+    const older = Object.assign(createTask('Older'), { createdAt: 1000 });
+    const newer = Object.assign(createTask('Newer'), { createdAt: 9000 });
+    const sorted = sortTasks([older, newer], 'default');
+    assert.strictEqual(sorted[0].title, 'Newer');
+    assert.strictEqual(sorted[1].title, 'Older');
+  });
+
+  await test('sortTasks("az") — alphabetical ascending', () => {
+    const tasks3 = [createTask('Zebra'), createTask('apple'), createTask('Mango')];
+    const sorted = sortTasks(tasks3, 'az');
+    // 'apple'.localeCompare('mango') < 0 < 'zebra'
+    assert.strictEqual(sorted[0].title.toLowerCase(), 'apple');
+    assert.strictEqual(sorted[sorted.length - 1].title.toLowerCase(), 'zebra');
+  });
+
+  await test('sortTasks("za") — alphabetical descending', () => {
+    const tasks3 = [createTask('apple'), createTask('Mango'), createTask('Zebra')];
+    const sorted = sortTasks(tasks3, 'za');
+    assert.strictEqual(sorted[0].title.toLowerCase(), 'zebra');
+    assert.strictEqual(sorted[sorted.length - 1].title.toLowerCase(), 'apple');
+  });
+
+  await test('sortTasks — original array is not mutated', () => {
+    const tasks3 = [createTask('Zebra'), createTask('Apple')];
+    const originalFirst = tasks3[0].title;
+    sortTasks(tasks3, 'az');
+    assert.strictEqual(tasks3[0].title, originalFirst);
+  });
+
+  await test('sortTasks — single item returns single-item array', () => {
+    const single = [createTask('Only one')];
+    const sorted = sortTasks(single, 'az');
+    assert.strictEqual(sorted.length, 1);
+    assert.strictEqual(sorted[0].title, 'Only one');
+  });
+
+  // -------------------------------------------------------------------------
+  // serializeTasks / deserializeTasks
+  // -------------------------------------------------------------------------
+
+  await test('serializeTasks / deserializeTasks — round-trip of empty array', () => {
+    const restored = deserializeTasks(serializeTasks([]));
+    assert.deepStrictEqual(restored, []);
+  });
+
+  await test('serializeTasks / deserializeTasks — round-trip preserves task data', () => {
+    const tasks4 = [createTask('Buy groceries'), createTask('Read book')];
+    const restored = deserializeTasks(serializeTasks(tasks4));
+    assert.strictEqual(restored.length, 2);
+    assert.strictEqual(restored[0].title, 'Buy groceries');
+    assert.strictEqual(restored[1].title, 'Read book');
+    assert.strictEqual(restored[0].completed, false);
+  });
+
+  await test('deserializeTasks — malformed JSON returns []', () => {
+    assert.deepStrictEqual(deserializeTasks('invalid json'), []);
+  });
+
+  await test('deserializeTasks — null input returns []', () => {
+    assert.deepStrictEqual(deserializeTasks(null), []);
+  });
+
+  await test('deserializeTasks — JSON object (not array) returns []', () => {
+    assert.deepStrictEqual(deserializeTasks('{"id":"1","title":"t"}'), []);
+  });
+
+  await test('deserializeTasks — JSON number returns []', () => {
+    assert.deepStrictEqual(deserializeTasks('42'), []);
+  });
+
+  // ---------------------------------------------------------------------------
+  // Block summary
+  // ---------------------------------------------------------------------------
+  const blockPrefix = [
+    'validateTaskTitle',
+    'isDuplicate',
+    'createTask',
+    'toggleTask',
+    'editTask',
+    'deleteTask',
+    'sortTasks',
+    'serializeTasks',
+    'deserializeTasks',
+  ];
+  const blockResults = results.filter(r =>
+    blockPrefix.some(prefix => r.name.startsWith(prefix))
+  );
+  const bPassed = blockResults.filter(r => r.passed).length;
+  const bFailed = blockResults.filter(r => !r.passed).length;
+  process.stdout.write('\n-------------------------------------------\n');
+  process.stdout.write(`Block results (Task helpers unit tests): ${bPassed}/${blockResults.length} passed`);
+  if (bFailed > 0) process.stdout.write(`, ${bFailed} failed`);
+  process.stdout.write('\n');
+  if (bFailed > 0) process.exit(1);
+  else process.stdout.write('All Task helper unit tests passed.\n\n');
+})();
+
+// ---------------------------------------------------------------------------
+// Task 15.4 — Unit tests for Link helpers
+// Deterministic, concrete-input/expected-output tests for:
+//   validateLink, createLink, deleteLink, serializeLinks, deserializeLinks
+// ---------------------------------------------------------------------------
+
+(async () => {
+  process.stdout.write('\nLink Helper Unit Tests (Task 15.4)\n');
+  process.stdout.write('===================================\n\n');
+
+  const {
+    validateLink,
+    createLink,
+    deleteLink,
+    serializeLinks,
+    deserializeLinks,
+  } = require('./app.js');
+
+  // -------------------------------------------------------------------------
+  // validateLink — valid cases
+  // -------------------------------------------------------------------------
+  await test('validateLink: valid name + https URL + count 0 → valid', () => {
+    const result = validateLink('GitHub', 'https://github.com', 0);
+    assert.strictEqual(result.valid, true, `Expected valid=true, got ${result.valid}`);
+  });
+
+  await test('validateLink: protocol check is case-insensitive (HTTPS://)', () => {
+    const result = validateLink('GitHub', 'HTTPS://github.com', 0);
+    assert.strictEqual(result.valid, true,
+      `Expected HTTPS:// to be accepted, got valid=${result.valid}`);
+  });
+
+  await test('validateLink: valid http URL is accepted', () => {
+    const result = validateLink('Example', 'http://example.com', 0);
+    assert.strictEqual(result.valid, true, `Expected http:// to be valid, got ${result.valid}`);
+  });
+
+  // -------------------------------------------------------------------------
+  // validateLink — invalid: empty / whitespace-only name
+  // -------------------------------------------------------------------------
+  await test('validateLink: empty name → invalid', () => {
+    const result = validateLink('', 'https://github.com', 0);
+    assert.strictEqual(result.valid, false, `Expected valid=false for empty name`);
+  });
+
+  await test('validateLink: whitespace-only name → invalid', () => {
+    const result = validateLink('   ', 'https://github.com', 0);
+    assert.strictEqual(result.valid, false, `Expected valid=false for whitespace-only name`);
+  });
+
+  // -------------------------------------------------------------------------
+  // validateLink — invalid: name too long (> 50 chars)
+  // -------------------------------------------------------------------------
+  await test('validateLink: name with 51 chars → invalid', () => {
+    const longName = 'a'.repeat(51);
+    const result = validateLink(longName, 'https://github.com', 0);
+    assert.strictEqual(result.valid, false,
+      `Expected valid=false for name of length ${longName.length}`);
+  });
+
+  // -------------------------------------------------------------------------
+  // validateLink — invalid: bad URL prefix
+  // -------------------------------------------------------------------------
+  await test('validateLink: URL without protocol (github.com) → invalid', () => {
+    const result = validateLink('GitHub', 'github.com', 0);
+    assert.strictEqual(result.valid, false,
+      `Expected valid=false for URL without http(s):// prefix`);
+  });
+
+  await test('validateLink: URL with wrong protocol (ftp://) → invalid', () => {
+    const result = validateLink('GitHub', 'ftp://github.com', 0);
+    assert.strictEqual(result.valid, false,
+      `Expected valid=false for ftp:// URL`);
+  });
+
+  // -------------------------------------------------------------------------
+  // validateLink — invalid: URL too long (> 2048 chars)
+  // -------------------------------------------------------------------------
+  await test('validateLink: URL length > 2048 chars → invalid', () => {
+    // 'https://' is 8 chars; pad with 2041 'x's → total 2049 chars
+    const longUrl = 'https://' + 'x'.repeat(2041);
+    assert.ok(longUrl.length > 2048, 'Test setup: URL must exceed 2048 chars');
+    const result = validateLink('Long', longUrl, 0);
+    assert.strictEqual(result.valid, false,
+      `Expected valid=false for URL of length ${longUrl.length}`);
+  });
+
+  // -------------------------------------------------------------------------
+  // validateLink — invalid: capacity reached (count >= 20)
+  // -------------------------------------------------------------------------
+  await test('validateLink: count === 20 (at capacity) → invalid', () => {
+    const result = validateLink('GitHub', 'https://github.com', 20);
+    assert.strictEqual(result.valid, false,
+      `Expected valid=false when count=20 (capacity reached)`);
+  });
+
+  await test('validateLink: count === 19 (one below capacity) → valid', () => {
+    const result = validateLink('GitHub', 'https://github.com', 19);
+    assert.strictEqual(result.valid, true,
+      `Expected valid=true when count=19 (one slot remaining)`);
+  });
+
+  // -------------------------------------------------------------------------
+  // createLink
+  // -------------------------------------------------------------------------
+  await test('createLink: name is trimmed', () => {
+    const link = createLink('  GitHub  ', 'https://github.com');
+    assert.strictEqual(link.name, 'GitHub',
+      `Expected name="GitHub" (trimmed), got "${link.name}"`);
+  });
+
+  await test('createLink: url is preserved as-is', () => {
+    const url  = 'https://github.com';
+    const link = createLink('GitHub', url);
+    assert.strictEqual(link.url, url,
+      `Expected url="${url}", got "${link.url}"`);
+  });
+
+  await test('createLink: id is a non-empty string', () => {
+    const link = createLink('GitHub', 'https://github.com');
+    assert.strictEqual(typeof link.id, 'string',
+      `Expected id to be a string, got ${typeof link.id}`);
+    assert.ok(link.id.length > 0, `Expected id to be non-empty`);
+  });
+
+  await test('createLink: two links get distinct ids', () => {
+    const a = createLink('GitHub', 'https://github.com');
+    const b = createLink('Google', 'https://google.com');
+    assert.notStrictEqual(a.id, b.id,
+      `Expected distinct ids but both were "${a.id}"`);
+  });
+
+  // -------------------------------------------------------------------------
+  // deleteLink
+  // -------------------------------------------------------------------------
+  await test('deleteLink: removes the targeted link (length decreases by 1)', () => {
+    const links = [
+      createLink('GitHub', 'https://github.com'),
+      createLink('Google', 'https://google.com'),
+    ];
+    const after = deleteLink(links, links[0].id);
+    assert.strictEqual(after.length, 1,
+      `Expected length 1 after deletion, got ${after.length}`);
+  });
+
+  await test('deleteLink: correct link remains after deletion', () => {
+    const links = [
+      createLink('GitHub', 'https://github.com'),
+      createLink('Google', 'https://google.com'),
+    ];
+    const after = deleteLink(links, links[0].id);
+    assert.strictEqual(after[0].name, 'Google',
+      `Expected remaining link to be "Google", got "${after[0].name}"`);
+  });
+
+  await test('deleteLink: does not mutate the original array', () => {
+    const links = [
+      createLink('GitHub', 'https://github.com'),
+      createLink('Google', 'https://google.com'),
+    ];
+    deleteLink(links, links[0].id);
+    assert.strictEqual(links.length, 2,
+      `Expected original array length to remain 2 after deleteLink, got ${links.length}`);
+  });
+
+  await test('deleteLink: deleting non-existent id returns same-length array', () => {
+    const links = [
+      createLink('GitHub', 'https://github.com'),
+    ];
+    const after = deleteLink(links, 'non-existent-id');
+    assert.strictEqual(after.length, 1,
+      `Expected length 1 when deleting missing id, got ${after.length}`);
+  });
+
+  await test('deleteLink: deleting from empty array returns empty array', () => {
+    const after = deleteLink([], 'any-id');
+    assert.strictEqual(after.length, 0,
+      `Expected empty array, got length ${after.length}`);
+  });
+
+  // -------------------------------------------------------------------------
+  // serializeLinks / deserializeLinks
+  // -------------------------------------------------------------------------
+  await test('deserializeLinks(serializeLinks([])): empty array round-trip', () => {
+    const result = deserializeLinks(serializeLinks([]));
+    assert.strictEqual(result.length, 0,
+      `Expected empty array, got length ${result.length}`);
+  });
+
+  await test('serializeLinks/deserializeLinks: single link round-trip preserves all fields', () => {
+    const original = [{ id: 'abc-123', name: 'GitHub', url: 'https://github.com' }];
+    const result   = deserializeLinks(serializeLinks(original));
+    assert.deepStrictEqual(result, original,
+      `Round-trip failed: ${JSON.stringify(result)} !== ${JSON.stringify(original)}`);
+  });
+
+  await test('serializeLinks/deserializeLinks: multiple links round-trip', () => {
+    const original = [
+      { id: 'id-1', name: 'GitHub', url: 'https://github.com' },
+      { id: 'id-2', name: 'Google', url: 'https://google.com' },
+      { id: 'id-3', name: 'MDN',    url: 'https://developer.mozilla.org' },
+    ];
+    const result = deserializeLinks(serializeLinks(original));
+    assert.deepStrictEqual(result, original,
+      `Multi-link round-trip failed`);
+  });
+
+  await test('deserializeLinks: bad JSON string returns []', () => {
+    const result = deserializeLinks('bad json');
+    assert.deepStrictEqual(result, [],
+      `Expected [] for invalid JSON, got ${JSON.stringify(result)}`);
+  });
+
+  await test('deserializeLinks: null returns []', () => {
+    const result = deserializeLinks(null);
+    assert.deepStrictEqual(result, [],
+      `Expected [] for null input, got ${JSON.stringify(result)}`);
+  });
+
+  await test('deserializeLinks: non-array JSON object ("{}") returns []', () => {
+    const result = deserializeLinks('{}');
+    assert.deepStrictEqual(result, [],
+      `Expected [] for object JSON, got ${JSON.stringify(result)}`);
+  });
+
+  await test('deserializeLinks: non-array JSON primitive returns []', () => {
+    const result = deserializeLinks('"a string"');
+    assert.deepStrictEqual(result, [],
+      `Expected [] for string JSON, got ${JSON.stringify(result)}`);
+  });
+
+  // -------------------------------------------------------------------------
+  // Block summary
+  // -------------------------------------------------------------------------
+  const blockPrefix = [
+    'validateLink:', 'createLink:', 'deleteLink:', 'deserializeLinks',
+    'serializeLinks',
+  ];
+  const blockResults = results.filter(r =>
+    blockPrefix.some(prefix => r.name.startsWith(prefix))
+  );
+  const bPassed = blockResults.filter(r => r.passed).length;
+  const bFailed = blockResults.filter(r => !r.passed).length;
+
+  process.stdout.write('\n-------------------------------------------\n');
+  process.stdout.write(
+    `Block results (Link Helper Unit Tests): ${bPassed}/${blockResults.length} passed`
+  );
+  if (bFailed > 0) {
+    process.stdout.write(`, ${bFailed} failed`);
+    process.stdout.write('\n');
+    process.exit(1);
+  } else {
+    process.stdout.write('\nAll Link helper unit tests passed.\n\n');
+  }
+})();

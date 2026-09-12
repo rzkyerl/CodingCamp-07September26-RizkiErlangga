@@ -950,3 +950,112 @@ select:focus {
     flex-direction: column;
   }
 }
+
+/* =============================================================================
+   26. THEME TOGGLE — active / pressed state
+   When dark mode is engaged, aria-pressed="true" is set on the button by JS.
+   Provide a distinct visual treatment so sighted users can tell which mode
+   is currently active without relying on the label text alone.
+   ============================================================================= */
+#theme-toggle[aria-pressed="true"] {
+  background: rgba(255, 255, 255, 0.40);
+  border-color: rgba(255, 255, 255, 0.65);
+  font-weight: 600;
+}
+
+/* Smooth colour transition on the toggle itself as the theme switches. */
+#theme-toggle {
+  transition:
+    background  0.15s ease,
+    border-color 0.15s ease,
+    font-weight  0s;
+}
+
+/* =============================================================================
+   27. BUTTON FOCUS RING
+   The global :focus-visible rule in §8 already handles buttons, but we
+   override it here so the ring colour matches the surface it sits on.
+   Header buttons (theme toggle) sit on the gradient background, so we use
+   a white ring; panel buttons use the accent colour ring.
+   ============================================================================= */
+.site-header button:focus-visible {
+  outline-color: rgba(255, 255, 255, 0.90);
+}
+
+/* =============================================================================
+   28. TASK LIST EMPTY STATE
+   When the task list has no items, show a neutral placeholder message.
+   This is written directly into innerHTML by the Tasks module when _tasks is
+   empty; we borrow the same style pattern as .link-list__empty.
+   ============================================================================= */
+.task-list:empty::after {
+  content: "No tasks yet. Add one above.";
+  display: block;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+  padding: 0.5rem 0.25rem;
+}
+
+/* =============================================================================
+   29. SMOOTH TRANSITION — theme toggle label (text swap on theme change)
+   ============================================================================= */
+#theme-toggle-label {
+  pointer-events: none; /* Label is informational — let clicks pass to button */
+}
+
+/* =============================================================================
+   30. INPUT PLACEHOLDER COLOUR
+   Ensure placeholder text meets minimum contrast in both themes.
+   ============================================================================= */
+input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1; /* Firefox reduces opacity by default */
+}
+
+/* =============================================================================
+   31. SCROLLBAR STYLING — task list (WebKit supplement)
+   The track colour matches the surface to look native in dark mode.
+   ============================================================================= */
+[data-theme="dark"] .task-list::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+
+/* =============================================================================
+   32. LINK PANEL — form spacing fix
+   Ensure the "Add Link" submit button sits below both field groups and the
+   capacity/load error spans with adequate spacing.
+   ============================================================================= */
+.panel-links .dashboard-form > button[type="submit"] {
+  margin-top: 0.25rem;
+}
+
+/* =============================================================================
+   33. HIGH CONTRAST / FORCED COLOURS
+   Restore borders and backgrounds for Windows High Contrast Mode so the
+   UI remains usable with assistive display settings.
+   ============================================================================= */
+@media (forced-colors: active) {
+  .panel {
+    border: 2px solid ButtonText;
+  }
+
+  .task-item,
+  .link-item {
+    border: 1px solid ButtonText;
+  }
+
+  .timer-notification {
+    border: 1px solid Highlight;
+  }
+
+  #storage-banner {
+    border: 1px solid ButtonText;
+  }
+
+  button:disabled {
+    opacity: 1; /* Forced colours already communicate disabled state */
+    color: GrayText;
+    border-color: GrayText;
+  }
+}

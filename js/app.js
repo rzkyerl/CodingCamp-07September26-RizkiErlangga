@@ -385,8 +385,25 @@ const Theme = {
     // Wire theme toggle button — guard against missing element
     const btn = document.getElementById('theme-toggle');
     if (btn) {
+      // Reflect the restored theme in the button's accessible state and label.
+      Theme._updateToggleButton(btn);
       btn.addEventListener('click', () => Theme.toggle());
     }
+  },
+
+  /**
+   * Updates the theme toggle button's aria-pressed state and label text
+   * to reflect the current theme.
+   * @param {HTMLButtonElement} [btn]
+   */
+  _updateToggleButton(btn) {
+    const el = btn || document.getElementById('theme-toggle');
+    if (!el) return;
+    const isDark = _currentTheme === 'dark';
+    el.setAttribute('aria-pressed', String(isDark));
+    el.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
+    const labelEl = document.getElementById('theme-toggle-label');
+    if (labelEl) labelEl.textContent = isDark ? 'Light mode' : 'Dark mode';
   },
 
   /**
@@ -396,6 +413,9 @@ const Theme = {
   toggle() {
     _currentTheme = _currentTheme === 'light' ? 'dark' : 'light';
     document.documentElement.dataset.theme = _currentTheme;
+
+    // Reflect the new state in the toggle button.
+    Theme._updateToggleButton();
 
     const ok = Storage.set(KEYS.THEME, _currentTheme);
     if (!ok) {

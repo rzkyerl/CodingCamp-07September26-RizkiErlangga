@@ -8,7 +8,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
 
 ## Tasks
 
-- [ ] 1. Project scaffolding — file structure and HTML skeleton
+- [-] 1. Project scaffolding — file structure and HTML skeleton
   - Create `index.html` at the project root with semantic landmark regions: `<header>` for the theme toggle, `<main class="dashboard">` with four child `<section>` elements (`.panel-greeting`, `.panel-timer`, `.panel-tasks`, `.panel-links`), and a `<footer>`.
   - Add `<link rel="stylesheet" href="css/style.css">` and `<script src="js/app.js" defer></script>` to `index.html`.
   - Create `css/style.css` (empty placeholder).
@@ -193,7 +193,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 9.8, 9.9_
 
 - [x] 12. Initialisation wiring
-  - [ ] 12.1 Wire `DOMContentLoaded` bootstrap in `js/app.js`
+  - [x] 12.1 Wire `DOMContentLoaded` bootstrap in `js/app.js`
     - Inside the `DOMContentLoaded` handler, call in order: `Storage` (already initialised, no-op), `Theme.init()`, `Greeting.init()`, `Timer.init()`, `Tasks.init()`, `Links.init()`.
     - Implement the shared storage-unavailable dismissible banner (`<div id="storage-banner">`) shown when any `Storage.set` returns `false`; wire a close button.
     - _Requirements: 2.5, 6.3, 9.8, 10.5_
@@ -201,8 +201,8 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
 - [ ] 13. Checkpoint — All modules wired
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 14. Responsive layout and visual polish
-  - [-] 14.1 Complete CSS layout and visual design in `css/style.css`
+- [x] 14. Responsive layout and visual polish
+  - [x] 14.1 Complete CSS layout and visual design in `css/style.css`
     - Complete grid layout rules for all four panels (desktop ≥ 768 px placement per design).
     - Add responsive single-column stack for `< 768 px`.
     - Add max-width container (`max-width: 1400px; margin: auto`) for `> 1400 px`.
@@ -213,27 +213,27 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - Style link buttons and their delete `×` controls.
     - _Requirements: 12.3, 10.2_
 
-  - [-] 14.2 Add accessibility attributes to `index.html` and rendered HTML
+  - [x] 14.2 Add accessibility attributes to `index.html` and rendered HTML
     - Add `aria-label` or `<label>` for every interactive control (name input, duration input, theme toggle, sort select, task add input, link name/URL inputs).
     - Link all error `<span class="error-msg">` elements to their inputs via `aria-describedby`.
     - Ensure timer notification region has `role="status"` or `aria-live="polite"`.
     - Add `aria-pressed` or `aria-checked` to the theme toggle as appropriate.
     - _Requirements: 5.3, 5.4 (inline errors must be screen-reader accessible)_
 
-- [ ] 15. Unit tests for all pure helpers
-  - [ ] 15.1 Write unit tests for Greeting helpers in `js/app.test.js`
+- [x] 15. Unit tests for all pure helpers
+  - [x] 15.1 Write unit tests for Greeting helpers in `js/app.test.js`
     - Test `formatTime`: boundary hours (0, 23), boundary minutes (0, 59), single-digit padding.
     - Test `formatDate`: spot-check known dates, day/month names.
     - Test `getGreeting`: all 24 hours, boundary hours (5, 12, 18, 21, 0, 4).
     - Test `buildGreetingMessage`: with non-empty name, empty name, whitespace-only name.
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 2.2_
 
-  - [ ] 15.2 Write unit tests for Timer helpers in `js/app.test.js`
+  - [x] 15.2 Write unit tests for Timer helpers in `js/app.test.js`
     - Test `formatTimer`: 0 s, 60 s, 3600 s, 7200 s, boundary padding.
     - Test `validateDuration`: valid (1, 25, 120), invalid (0, 121, -1, 1.5, NaN, "25", null).
     - _Requirements: 3.1, 3.9, 4.1, 4.4_
 
-  - [ ] 15.3 Write unit tests for Task helpers in `js/app.test.js`
+  - [x] 15.3 Write unit tests for Task helpers in `js/app.test.js`
     - Test `validateTaskTitle`: empty string, whitespace-only, 1 char, 200 chars, 201 chars.
     - Test `isDuplicate`: exact match, case-insensitive match, trim match, no match.
     - Test `createTask`: returned object shape and defaults.
@@ -244,7 +244,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - Test `serializeTasks` / `deserializeTasks`: round-trip, malformed JSON returns `[]`.
     - _Requirements: 5.2, 5.3, 5.4, 5.6, 5.8, 5.11, 7.1, 8.2, 8.3, 8.4_
 
-  - [ ] 15.4 Write unit tests for Link helpers in `js/app.test.js`
+  - [x] 15.4 Write unit tests for Link helpers in `js/app.test.js`
     - Test `validateLink`: valid submission, empty name, name > 50 chars, non-http URL, URL > 2048 chars, count = 20.
     - Test `createLink`: returned object shape.
     - Test `deleteLink`: removes correct element, length decreases by 1.

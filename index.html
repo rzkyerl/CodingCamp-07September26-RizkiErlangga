@@ -16,13 +16,13 @@
       </button>
     </header>
 
-    <div id="storage-banner" role="alert">
+    <div id="storage-banner" role="alert" aria-live="assertive">
       <span>Some preferences could not be saved because browser storage is unavailable.</span>
       <button class="banner-close" type="button" aria-label="Dismiss storage warning">×</button>
     </div>
 
     <main id="main-content" class="dashboard" aria-label="Todo Life Dashboard">
-      <section class="panel panel-greeting" aria-labelledby="greeting-heading">
+      <section class="panel panel-greeting" role="region" aria-labelledby="greeting-heading">
         <h2 id="greeting-heading">Today</h2>
         <p id="greeting-time" class="greeting-time" aria-live="polite" aria-atomic="true">--:--</p>
         <p id="greeting-date" class="greeting-date">Loading date…</p>
@@ -35,11 +35,11 @@
         </div>
       </section>
 
-      <section class="panel panel-timer" aria-labelledby="timer-heading">
+      <section class="panel panel-timer" role="region" aria-labelledby="timer-heading">
         <h2 id="timer-heading">Focus timer</h2>
 
         <div class="timer-display-wrap">
-          <div id="timer-display" class="timer-display" role="timer" aria-live="polite" aria-atomic="true" aria-label="Time remaining">25:00</div>
+          <div id="timer-display" class="timer-display" role="timer" aria-live="off" aria-atomic="true" aria-label="Time remaining">25:00</div>
           <div class="timer-notification" role="status" aria-live="polite">Focus session complete!</div>
         </div>
 
@@ -56,14 +56,14 @@
         </div>
       </section>
 
-      <section class="panel panel-tasks" aria-labelledby="tasks-heading">
+      <section class="panel panel-tasks" role="region" aria-labelledby="tasks-heading">
         <h2 id="tasks-heading">Tasks</h2>
 
         <form id="task-form" class="dashboard-form">
           <div class="field-group">
             <label for="task-input">New task</label>
             <div class="inline-field">
-              <input id="task-input" name="task" type="text" maxlength="200" autocomplete="off" placeholder="What needs to be done?">
+              <input id="task-input" name="task" type="text" maxlength="200" autocomplete="off" placeholder="What needs to be done?" aria-describedby="task-input-error">
               <button type="submit">Add</button>
             </div>
             <span id="task-input-error" class="error-msg" role="alert" aria-live="polite"></span>
@@ -79,22 +79,22 @@
           </select>
         </div>
 
-        <ul id="task-list" class="task-list" aria-live="polite"></ul>
+        <ul id="task-list" class="task-list" aria-labelledby="tasks-heading" aria-live="polite"></ul>
       </section>
 
-      <section class="panel panel-links" aria-labelledby="links-heading">
+      <section class="panel panel-links" role="region" aria-labelledby="links-heading">
         <h2 id="links-heading">Quick links</h2>
 
         <form id="link-add-form" class="dashboard-form">
           <div class="field-group">
             <label for="link-name-input">Link name</label>
-            <input id="link-name-input" name="link-name" type="text" maxlength="50" autocomplete="off" placeholder="Example website">
+            <input id="link-name-input" name="link-name" type="text" maxlength="50" autocomplete="off" placeholder="Example website" aria-describedby="link-name-error">
             <span id="link-name-error" class="error-msg" role="alert" aria-live="polite"></span>
           </div>
 
           <div class="field-group">
             <label for="link-url-input">URL</label>
-            <input id="link-url-input" name="link-url" type="url" maxlength="2048" autocomplete="off" placeholder="https://example.com" required>
+            <input id="link-url-input" name="link-url" type="url" maxlength="2048" autocomplete="off" placeholder="https://example.com" required aria-describedby="link-url-error">
             <span id="link-url-error" class="error-msg" role="alert" aria-live="polite"></span>
           </div>
 
@@ -103,7 +103,7 @@
           <button type="submit">Add Link</button>
         </form>
 
-        <ul id="link-list" class="link-list" aria-live="polite"></ul>
+        <ul id="link-list" class="link-list" aria-labelledby="links-heading" aria-live="polite"></ul>
       </section>
     </main>
 
