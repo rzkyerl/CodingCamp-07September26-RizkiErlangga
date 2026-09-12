@@ -20,6 +20,11 @@ const {
   deserializeTasks,
   serializeLinks,
   deserializeLinks,
+  resolveTheme,
+  formatTime,
+  formatDate,
+  getGreeting,
+  buildGreetingMessage,
 } = require('./app.js');
 
 // ---------------------------------------------------------------------------
@@ -244,6 +249,220 @@ const validLinksArb = fc.uniqueArray(validLinkArb, { maxLength: 20, selector: l 
           theme,
           `Expected "${theme}" but got "${loaded}"`
         );
+        return true;
+      }),
+      { numRuns: 100 }
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // Property 22 (extended): resolveTheme returns the exact theme for valid values
+  // Feature: todo-life-dashboard, Property 22: Theme persistence round-trip
+  // -------------------------------------------------------------------------
+  await test('Property 22 — resolveTheme returns identity for valid themes (Req 10.3)', () => {
+    fc.assert(
+      fc.property(validThemeArb, (theme) => {
+        const resolved = resolveTheme(theme);
+        assert.strictEqual(
+          resolved,
+          theme,
+          `Expected resolveTheme("${theme}") to return "${theme}" but got "${resolved}"`
+        );
+        return true;
+      }),
+      { numRuns: 100 }
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // Property 22 (extended): Full Storage → resolveTheme round-trip
+  // Feature: todo-life-dashboard, Property 22: Theme persistence round-trip
+  // -------------------------------------------------------------------------
+  await test('Property 22 — Full Storage + resolveTheme round-trip (Req 10.3)', () => {
+    installMockLocalStorage();
+    fc.assert(
+      fc.property(validThemeArb, (theme) => {
+        Storage.set(KEYS.THEME, theme);
+        const loaded   = Storage.get(KEYS.THEME);
+        const resolved = resolveTheme(loaded);
+        assert.strictEqual(
+          resolved,
+          theme,
+          `Expected full round-trip to return "${theme}" but resolveTheme("${loaded}") gave "${resolved}"`
+        );
+        return true;
+      }),
+      { numRuns: 100 }
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // Property 1: Time format is always HH:MM
+  // Feature: todo-life-dashboard, Property 1: Time format is always HH:MM
+  // -------------------------------------------------------------------------
+  await test('Property 1 — formatTime always produces HH:MM format (Req 1.1)', () => {
+    // Generate arbitrary timestamps covering the full 32-bit Unix range so
+    // we exercise all 24 hours and all 60 minutes.
+    const timestampArb = fc.integer({ min: 0, max: 2_147_483_647_000 });
+    fc.assert(
+      fc.property(timestampArb, (ts) => {
+        const date   = new Date(ts);
+        const result = formatTime(date);
+
+        // Overall pattern: exactly "HH:MM"
+        assert.match(
+          result,
+          /^\d{2}:\d{2}$/,
+          `formatTime returned "${result}" — does not match \\d{2}:\\d{2}`
+        );
+
+        // Hour component must be in [0, 23]
+        const hour = parseInt(result.slice(0, 2), 10);
+        assert.ok(
+          hour >= 0 && hour <= 23,
+          `Hour component ${hour} is outside [0, 23]`
+        );
+
+        // Minute component must be in [0, 59]
+        const minute = parseInt(result.slice(3, 5), 10);
+        assert.ok(
+          minute >= 0 && minute <= 59,
+          `Minute component ${minute} is outside [0, 59]`
+        );
+
+        // Values must exactly match what the Date reports
+        assert.strictEqual(
+          result,
+          String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0'),
+          `formatTime("${date.toISOString()}") = "${result}" but expected clock values`
+        );
+
+        return true;
+      }),
+      { numRuns: 100 }
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // Property 2: Date format matches "Weekday, DD MonthName YYYY"
+  // Feature: todo-life-dashboard, Property 2: Date format matches "Weekday, DD MonthName YYYY"
+  // -------------------------------------------------------------------------
+  await test('Property 2 — formatDate always matches "Weekday, DD MonthName YYYY" (Req 1.2)', () => {
+    const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const MONTHS   = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December',
+    ];
+    const weekdayPattern = WEEKDAYS.join('|');
+    const fullPattern    = new RegExp(
+      `^(${weekdayPattern}), \\d{2} \\w+ \\d{4}$`
+    );
+
+    const timestampArb = fc.integer({ min: 0, max: 2_147_483_647_000 });
+    fc.assert(
+      fc.property(timestampArb, (ts) => {
+        const date   = new Date(ts);
+        const result = formatDate(date);
+
+        // Overall pattern
+        assert.match(
+          result,
+          fullPattern,
+          `formatDate returned "${result}" — does not match expected pattern`
+        );
+
+        // Weekday must be the correct day
+        const expectedWeekday = WEEKDAYS[date.getDay()];
+        assert.ok(
+          result.startsWith(expectedWeekday + ','),
+          `Expected weekday "${expectedWeekday}" but got "${result.split(',')[0]}"`
+        );
+
+        // Month name must be correct
+        const expectedMonth = MONTHS[date.getMonth()];
+        assert.ok(
+          result.includes(' ' + expectedMonth + ' '),
+          `Expected month "${expectedMonth}" in "${result}"`
+        );
+
+        // Year must be correct (4-digit, at the end)
+        const expectedYear = String(date.getFullYear());
+        assert.ok(
+          result.endsWith(expectedYear),
+          `Expected year "${expectedYear}" at end of "${result}"`
+        );
+
+        return true;
+      }),
+      { numRuns: 100 }
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // Property 3: Greeting covers all hours exhaustively and without overlap
+  // Feature: todo-life-dashboard, Property 3: Greeting covers all hours exhaustively and without overlap
+  // -------------------------------------------------------------------------
+  await test('Property 3 — getGreeting maps every hour to exactly one valid greeting (Req 1.3–1.6)', () => {
+    const VALID_GREETINGS = new Set([
+      'Good morning', 'Good afternoon', 'Good evening', 'Good night',
+    ]);
+
+    const hourArb = fc.integer({ min: 0, max: 23 });
+    fc.assert(
+      fc.property(hourArb, (hour) => {
+        const result = getGreeting(hour);
+
+        // Must be one of the four valid greetings
+        assert.ok(
+          VALID_GREETINGS.has(result),
+          `getGreeting(${hour}) returned "${result}" which is not a valid greeting`
+        );
+
+        // Must match the exact time-range specification
+        if (hour >= 5 && hour <= 11) {
+          assert.strictEqual(result, 'Good morning',
+            `Hour ${hour} (05–11) should be "Good morning" but got "${result}"`);
+        } else if (hour >= 12 && hour <= 17) {
+          assert.strictEqual(result, 'Good afternoon',
+            `Hour ${hour} (12–17) should be "Good afternoon" but got "${result}"`);
+        } else if (hour >= 18 && hour <= 20) {
+          assert.strictEqual(result, 'Good evening',
+            `Hour ${hour} (18–20) should be "Good evening" but got "${result}"`);
+        } else {
+          // 21–23 and 0–4
+          assert.strictEqual(result, 'Good night',
+            `Hour ${hour} (21–23 / 0–4) should be "Good night" but got "${result}"`);
+        }
+
+        return true;
+      }),
+      { numRuns: 100 }
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // Property 4: Greeting message includes name when name is non-empty
+  // Feature: todo-life-dashboard, Property 4: Greeting message includes name when name is non-empty
+  // -------------------------------------------------------------------------
+  await test('Property 4 — buildGreetingMessage returns "greeting, name" for non-empty names (Req 2.2)', () => {
+    // Non-empty trimmed name (1–50 chars with at least one non-whitespace char)
+    const nonEmptyNameArb = fc.string({ minLength: 1, maxLength: 50 })
+      .filter(s => s.trim().length > 0);
+    // Arbitrary greeting string (any non-empty string)
+    const greetingArb = fc.string({ minLength: 1, maxLength: 50 });
+
+    fc.assert(
+      fc.property(greetingArb, nonEmptyNameArb, (greeting, name) => {
+        const trimmedName = name.trim();
+        const result      = buildGreetingMessage(greeting, name);
+        const expected    = greeting + ', ' + trimmedName;
+
+        assert.strictEqual(
+          result,
+          expected,
+          `buildGreetingMessage("${greeting}", "${name}") = "${result}" but expected "${expected}"`
+        );
+
         return true;
       }),
       { numRuns: 100 }

@@ -16,7 +16,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
   - Verify the file tree matches: `index.html`, `css/style.css`, `js/app.js` — no other JS or CSS files.
   - _Requirements: 11.1_
 
-- [ ] 2. Storage module
+- [x] 2. Storage module
   - [x] 2.1 Implement `Storage` module inside `js/app.js`
     - Write `Storage.get(key)` — wraps `localStorage.getItem` in `try/catch`; returns `string | null`.
     - Write `Storage.set(key, value)` — wraps `localStorage.setItem` in `try/catch`; returns `boolean`.
@@ -24,7 +24,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - Define all six storage-key constants (`tld_name`, `tld_duration`, `tld_tasks`, `tld_sort`, `tld_links`, `tld_theme`).
     - _Requirements: 6.3, 9.8_
 
-  - [-] 2.2 Write property test for Storage round-trip (Property 5, 8, 14, 17, 21, 22)
+  - [x] 2.2 Write property test for Storage round-trip (Property 5, 8, 14, 17, 21, 22)
     - Set up `js/app.test.js` with [fast-check](https://github.com/dubzzz/fast-check) imported as an ES module (or via a `<script type="module">` in a test HTML runner for Node-less environments — use a hand-rolled assert suite backed by fast-check if Node is available).
     - **Property 5: Custom name localStorage round-trip** — Validates: Requirements 2.3
     - **Property 8: Pomodoro duration localStorage round-trip** — Validates: Requirements 4.3
@@ -41,8 +41,8 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - Write `Utils.trimAndLower(str)` — returns `str.trim().toLowerCase()`.
     - _Requirements: 11.2 (pure helpers, no external deps)_
 
-- [ ] 4. CSS base and theme tokens
-  - [-] 4.1 Define CSS custom properties and base styles in `css/style.css`
+- [x] 4. CSS base and theme tokens
+  - [x] 4.1 Define CSS custom properties and base styles in `css/style.css`
     - Declare all colour tokens as CSS custom properties on `:root` (background, card surface, text, accent, error, etc.).
     - Add `[data-theme="dark"]` overrides for all colour tokens.
     - Set `system-ui` font stack, `box-sizing: border-box` reset, and body background gradient (`linear-gradient(135deg, #667eea 0%, #764ba2 100%)`).
@@ -51,31 +51,31 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - Style card base (`.panel`): white/dark surface, `border-radius: 16px`, `box-shadow`.
     - _Requirements: 10.2, 12.3_
 
-  - [~] 4.2 Implement `Theme` module inside `js/app.js`
+  - [x] 4.2 Implement `Theme` module inside `js/app.js`
     - Write `resolveTheme(stored)` — returns `'light'` or `'dark'`; defaults to `'light'` for absent/unrecognised values.
     - Write `Theme.init()` — loads theme from `Storage`, calls `resolveTheme`, sets `document.documentElement.dataset.theme`.
     - Write `Theme.toggle()` — flips current theme, persists via `Storage.set`, updates `dataset.theme`.
     - Wire the theme toggle control's `click` listener to `Theme.toggle()`.
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
 
-  - [~] 4.3 Write property test for Theme (Property 22)
+  - [x] 4.3 Write property test for Theme (Property 22)
     - **Property 22: Theme persistence round-trip** — Validates: Requirements 10.3
 
 - [ ] 5. Greeting panel
-  - [~] 5.1 Implement pure Greeting helpers inside `js/app.js`
+  - [x] 5.1 Implement pure Greeting helpers inside `js/app.js`
     - Write `formatTime(date)` — returns `"HH:MM"` (24-hour, zero-padded via `Utils.padTwo`).
     - Write `formatDate(date)` — returns `"Weekday, DD MonthName YYYY"`.
     - Write `getGreeting(hour)` — maps hour [0–23] to one of: "Good morning" (5–11), "Good afternoon" (12–17), "Good evening" (18–20), "Good night" (21–23, 0–4).
     - Write `buildGreetingMessage(greeting, name)` — returns `greeting + ", " + name` when name is non-empty trimmed, otherwise `greeting`.
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 2.2_
 
-  - [~] 5.2 Write property tests for Greeting helpers (Properties 1–4)
+  - [-] 5.2 Write property tests for Greeting helpers (Properties 1–4)
     - **Property 1: Time format is always HH:MM** — Validates: Requirements 1.1
     - **Property 2: Date format matches "Weekday, DD MonthName YYYY"** — Validates: Requirements 1.2
     - **Property 3: Greeting covers all hours exhaustively and without overlap** — Validates: Requirements 1.3, 1.4, 1.5, 1.6
     - **Property 4: Greeting message includes name when name is non-empty** — Validates: Requirements 2.2
 
-  - [~] 5.3 Implement `Greeting` module (DOM + persistence) inside `js/app.js`
+  - [-] 5.3 Implement `Greeting` module (DOM + persistence) inside `js/app.js`
     - Write `Greeting.init()` — reads saved name via `Storage.get('tld_name')`, renders time/date/greeting into the `.panel-greeting` DOM nodes, starts `setInterval(tick, 60_000)`, fires first render immediately.
     - Write `Greeting.saveName(name)` — validates 1–50 non-whitespace chars, calls `Storage.set('tld_name', name.trim())`, re-renders greeting.
     - Wire the name input's `blur` and Enter-key `keydown` events to `Greeting.saveName()`.
