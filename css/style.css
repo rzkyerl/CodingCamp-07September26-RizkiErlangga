@@ -318,3 +318,635 @@ body {
 #storage-banner .banner-close:hover {
   background: rgba(0, 0, 0, 0.08);
 }
+
+/* =============================================================================
+   10. THEME TOGGLE BUTTON
+   The theme toggle button lives in the site header.
+   ============================================================================= */
+#theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.20);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+}
+
+#theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+/* =============================================================================
+   11. FOOTER
+   ============================================================================= */
+.site-footer {
+  text-align: center;
+  padding: 1rem 1.5rem 1.5rem;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.8125rem;
+}
+
+/* =============================================================================
+   12. FORM ELEMENTS — shared across all panels
+   ============================================================================= */
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 1rem;
+}
+
+.field-group label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Base input / select / textarea */
+input[type="text"],
+input[type="number"],
+input[type="url"],
+select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: 8px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="url"]:focus,
+select:focus {
+  border-color: var(--color-border-focus);
+  box-shadow: var(--shadow-input-focus);
+  outline: none;
+}
+
+/* Number spinner — hide native arrows for tidiness */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Custom select chevron */
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23767699' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2rem;
+  cursor: pointer;
+}
+
+/* Shared button base */
+button,
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  font-weight: 500;
+  border-radius: 8px;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+  white-space: nowrap;
+  line-height: 1.25;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Primary (filled) button — used for submit / Add / Save */
+button[type="submit"],
+#timer-start,
+.task-save {
+  background: var(--color-accent);
+  color: var(--color-text-on-accent);
+  border-color: var(--color-accent);
+}
+
+button[type="submit"]:not(:disabled):hover,
+#timer-start:not(:disabled):hover,
+.task-save:not(:disabled):hover {
+  background: var(--color-accent-dark);
+  border-color: var(--color-accent-dark);
+}
+
+/* Secondary (outline) button — Stop, Cancel, Reset */
+#timer-stop,
+#timer-reset,
+.task-cancel {
+  background: transparent;
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+#timer-stop:not(:disabled):hover,
+#timer-reset:not(:disabled):hover,
+.task-cancel:not(:disabled):hover {
+  background: var(--color-accent-light);
+}
+
+/* =============================================================================
+   13. INLINE-FIELD (input + button side by side)
+   Used by the add-task form.
+   ============================================================================= */
+.inline-field {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.inline-field input {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.inline-field button {
+  flex-shrink: 0;
+}
+
+/* =============================================================================
+   14. ERROR MESSAGES
+   ============================================================================= */
+.error-msg {
+  display: block;
+  min-height: 1.1rem;
+  font-size: 0.8125rem;
+  color: var(--color-error);
+  font-weight: 500;
+}
+
+/* =============================================================================
+   15. GREETING PANEL
+   ============================================================================= */
+.greeting-time {
+  font-size: clamp(3rem, 8vw, 4.5rem);
+  font-weight: 700;
+  color: var(--color-accent);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.25rem;
+}
+
+.greeting-date {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.greeting-message {
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 1.25rem;
+}
+
+/* Name input row */
+.panel-greeting .field-group {
+  max-width: 320px;
+  margin-bottom: 0;
+}
+
+/* =============================================================================
+   16. FOCUS TIMER PANEL
+   ============================================================================= */
+.timer-display-wrap {
+  position: relative;
+  margin-bottom: 1.25rem;
+}
+
+.timer-display {
+  font-size: clamp(3.5rem, 10vw, 5.5rem);
+  font-weight: 700;
+  color: var(--color-timer-display);
+  letter-spacing: 0.04em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Notification overlay — hidden by default */
+.timer-notification {
+  display: none;
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 8px;
+  background: var(--color-notification-bg);
+  color: var(--color-text-on-accent);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  width: fit-content;
+}
+
+.timer-notification.visible {
+  display: block;
+}
+
+/* Timer button row */
+.timer-controls {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+/* Duration input — narrower than full-width */
+.timer-duration-field {
+  max-width: 240px;
+  margin-bottom: 0;
+}
+
+/* =============================================================================
+   17. TASK LIST PANEL
+   ============================================================================= */
+/* Sort control row */
+.sort-field {
+  margin-bottom: 0.75rem;
+}
+
+/* Scrollable task list (cap height so the panel doesn't grow indefinitely) */
+.task-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 480px;
+  overflow-y: auto;
+  padding-right: 0.25rem; /* room for scrollbar */
+  /* Smooth scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+.task-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.task-list::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
+/* Task row — read mode */
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 10px;
+  background: var(--color-surface-hover);
+  border: 1.5px solid var(--color-border);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.task-item:hover {
+  border-color: var(--color-accent);
+}
+
+/* Completed task */
+.task-completed .task-title {
+  text-decoration: line-through;
+  color: var(--color-completed-text);
+}
+
+/* Checkbox custom styling */
+.task-checkbox-label {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.task-toggle {
+  width: 1.125rem;
+  height: 1.125rem;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Task title */
+.task-title {
+  flex: 1 1 0;
+  min-width: 0;
+  word-break: break-word;
+  color: var(--color-text-primary);
+  font-size: 0.9375rem;
+}
+
+/* Action buttons group */
+.task-actions {
+  display: flex;
+  gap: 0.3rem;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* Icon buttons for edit / delete / save / cancel */
+.task-edit,
+.task-delete,
+.task-save,
+.task-cancel {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  border-radius: 6px;
+  line-height: 1;
+}
+
+.task-edit {
+  background: transparent;
+  color: var(--color-text-muted);
+  border-color: transparent;
+}
+
+.task-edit:hover {
+  color: var(--color-accent);
+  background: var(--color-accent-light);
+  border-color: transparent;
+}
+
+.task-delete {
+  background: transparent;
+  color: var(--color-text-muted);
+  border-color: transparent;
+}
+
+.task-delete:hover {
+  color: var(--color-error);
+  background: var(--color-error-bg);
+  border-color: transparent;
+}
+
+/* Task row — edit mode */
+.task-item--editing {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.task-edit-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1 1 auto;
+}
+
+.task-edit-input {
+  width: 100%;
+  padding: 0.375rem 0.625rem;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border-focus);
+  border-radius: 6px;
+}
+
+.task-edit-input:focus {
+  outline: none;
+  box-shadow: var(--shadow-input-focus);
+}
+
+.task-edit-error {
+  font-size: 0.8125rem;
+  color: var(--color-error);
+}
+
+/* In edit mode — reflow the action buttons alongside the input */
+.task-item--editing .task-actions {
+  display: flex;
+  gap: 0.375rem;
+  justify-content: flex-end;
+  margin-left: 0;
+  margin-top: 0.375rem;
+}
+
+/* =============================================================================
+   18. QUICK LINKS PANEL
+   ============================================================================= */
+.link-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0;
+  margin-top: 0.75rem;
+}
+
+/* Empty-state message */
+.link-list__empty {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+/* Each link item: a chip containing the link anchor and delete button */
+.link-item {
+  display: inline-flex;
+  align-items: center;
+  background: var(--color-accent-light);
+  border: 1.5px solid var(--color-accent);
+  border-radius: 999px;
+  overflow: hidden;
+  transition: box-shadow 0.15s ease;
+}
+
+.link-item:hover {
+  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.25);
+}
+
+/* The link anchor */
+.link-btn {
+  display: inline-block;
+  padding: 0.35rem 0.75rem 0.35rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-accent-dark);
+  text-decoration: none;
+  white-space: nowrap;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.15s ease;
+}
+
+.link-btn:hover {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+/* Delete (×) button inside the chip */
+.link-delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.625rem;
+  font-size: 1rem;
+  line-height: 1;
+  background: transparent;
+  border: none;
+  border-left: 1.5px solid var(--color-accent);
+  border-radius: 0;
+  color: var(--color-accent-dark);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.link-delete:hover {
+  background: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+/* =============================================================================
+   19. DARK THEME — link chip overrides
+   ============================================================================= */
+[data-theme="dark"] .link-item {
+  background: var(--color-accent-light);
+  border-color: var(--color-accent);
+}
+
+[data-theme="dark"] .link-btn {
+  color: var(--color-accent);
+}
+
+[data-theme="dark"] .link-delete {
+  color: var(--color-accent);
+  border-left-color: var(--color-accent);
+}
+
+/* =============================================================================
+   20. DARK THEME — select chevron colour swap
+   ============================================================================= */
+[data-theme="dark"] select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238888aa' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+}
+
+/* =============================================================================
+   21. DASHBOARD FORM — spacing utility
+   ============================================================================= */
+.dashboard-form {
+  margin-bottom: 1.25rem;
+}
+
+/* =============================================================================
+   22. COLOR TRANSITIONS for smooth theme switching
+   ============================================================================= */
+body,
+.panel,
+input[type="text"],
+input[type="number"],
+input[type="url"],
+select,
+.task-item,
+.link-item,
+.timer-display,
+.timer-notification {
+  transition:
+    background-color 0.2s ease,
+    border-color     0.2s ease,
+    color            0.2s ease;
+}
+
+/* =============================================================================
+   23. ACCESSIBILITY — visible focus ring (global, already declared in §8)
+   Additional overrides for specific interactive elements.
+   ============================================================================= */
+.task-toggle:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.link-btn:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Suppress default focus outline on elements that already have custom rings */
+.task-edit-input:focus,
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="url"]:focus,
+select:focus {
+  outline: none;
+}
+
+/* =============================================================================
+   24. RESPONSIVE — Tablet / Mobile  (< 768 px)
+   All panels collapse to a single-column stack.
+   (Grid overrides are already declared in §6; these rules handle
+    component-level adjustments for narrow viewports.)
+   ============================================================================= */
+@media (max-width: 767px) {
+  .timer-controls {
+    gap: 0.4rem;
+  }
+
+  .timer-controls button {
+    flex: 1 1 auto;
+  }
+
+  .timer-display {
+    font-size: 4rem;
+  }
+
+  .greeting-time {
+    font-size: 3.5rem;
+  }
+
+  .task-list {
+    max-height: 360px;
+  }
+
+  .link-btn {
+    max-width: 140px;
+  }
+}
+
+/* =============================================================================
+   25. RESPONSIVE — Very small screens (< 400 px)
+   ============================================================================= */
+@media (max-width: 399px) {
+  .page-wrapper {
+    padding: 0.75rem;
+  }
+
+  .panel {
+    padding: 1.25rem;
+  }
+
+  .greeting-time {
+    font-size: 2.75rem;
+  }
+
+  .timer-display {
+    font-size: 3.25rem;
+  }
+
+  .inline-field {
+    flex-direction: column;
+  }
+}

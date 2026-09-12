@@ -8,7 +8,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
 
 ## Tasks
 
-- [~] 1. Project scaffolding — file structure and HTML skeleton
+- [ ] 1. Project scaffolding — file structure and HTML skeleton
   - Create `index.html` at the project root with semantic landmark regions: `<header>` for the theme toggle, `<main class="dashboard">` with four child `<section>` elements (`.panel-greeting`, `.panel-timer`, `.panel-tasks`, `.panel-links`), and a `<footer>`.
   - Add `<link rel="stylesheet" href="css/style.css">` and `<script src="js/app.js" defer></script>` to `index.html`.
   - Create `css/style.css` (empty placeholder).
@@ -82,7 +82,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - Handle `Storage.set` returning `false` by showing the storage-unavailable banner.
     - _Requirements: 2.1, 2.3, 2.4, 2.5_
 
-- [~] 6. Checkpoint — Greeting and Theme
+- [ ] 6. Checkpoint — Greeting and Theme
   - Ensure all tests pass, ask the user if questions arise.
 
 - [x] 7. Focus Timer
@@ -116,10 +116,10 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
   - [x] 7.5 Write property test for Timer duration round-trip (Property 8)
     - **Property 8: Pomodoro duration localStorage round-trip** — Validates: Requirements 4.3
 
-- [~] 8. Checkpoint — Timer
+- [ ] 8. Checkpoint — Timer
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 9. Task List
+- [x] 9. Task List
   - [x] 9.1 Implement pure Task helpers inside `js/app.js`
     - Write `validateTaskTitle(title)` — returns `{ valid: boolean, error: string }`; checks non-empty trim, max 200 chars.
     - Write `isDuplicate(tasks, title)` — returns `true` if `tasks` contains any item where `trimAndLower(item.title) === trimAndLower(title)`.
@@ -132,7 +132,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - Write `deserializeTasks(json)` — returns parsed array or `[]` on any error.
     - _Requirements: 5.2, 5.3, 5.4, 5.6, 5.8, 5.9, 5.10, 5.11, 7.1, 8.2, 8.3, 8.4_
 
-  - [-] 9.2 Write property tests for Task helpers (Properties 9–16)
+  - [x] 9.2 Write property tests for Task helpers (Properties 9–16)
     - **Property 9: Adding a valid task increases list length by exactly one** — Validates: Requirements 5.2
     - **Property 10: Whitespace-only titles are always invalid** — Validates: Requirements 5.3, 5.9
     - **Property 11: Task toggle is its own inverse** — Validates: Requirements 5.6
@@ -142,7 +142,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - **Property 15: Duplicate detection is case-insensitive and trim-invariant** — Validates: Requirements 7.1
     - **Property 16: Sort produces correct orderings** — Validates: Requirements 8.2, 8.3, 8.4
 
-  - [-] 9.3 Implement `Tasks` module (DOM + persistence) inside `js/app.js`
+  - [x] 9.3 Implement `Tasks` module (DOM + persistence) inside `js/app.js`
     - Declare module-scoped state: `let _tasks = []`, `let _sort = 'default'`.
     - Write `Tasks.init()` — loads tasks via `deserializeTasks(Storage.get('tld_tasks'))`, loads sort via `Storage.get('tld_sort')`, renders the full list.
     - Write `Tasks.addTask(title)` — validates title, checks duplicate and capacity (≤ 100), creates task, pushes to `_tasks`, saves, re-renders, clears input; shows inline error on failure.
@@ -163,10 +163,10 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
   - [x] 9.4 Write property test for Sort preference round-trip (Property 17)
     - **Property 17: Sort preference localStorage round-trip** — Validates: Requirements 8.5, 8.6
 
-- [~] 10. Checkpoint — Task List
+- [ ] 10. Checkpoint — Task List
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 11. Quick Links panel
+- [x] 11. Quick Links panel
   - [x] 11.1 Implement pure Link helpers inside `js/app.js`
     - Write `validateLink(name, url, currentCount)` — returns `{ valid: boolean, errors: { name?, url?, capacity? } }` checking name length (1–50), URL prefix (`/^https?:\/\//i`), URL length (≤ 2048), and count (< 20).
     - Write `createLink(name, url)` — returns `{ id: Utils.generateId(), name: name.trim(), url }`.
@@ -175,13 +175,13 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - Write `deserializeLinks(json)` — returns parsed array or `[]` on any error.
     - _Requirements: 9.2, 9.3, 9.5, 9.9_
 
-  - [-] 11.2 Write property tests for Link helpers (Properties 18–21)
+  - [x] 11.2 Write property tests for Link helpers (Properties 18–21)
     - **Property 18: Adding a valid link increases link count by exactly one** — Validates: Requirements 9.2
     - **Property 19: Link validation rejects all invalid inputs** — Validates: Requirements 9.3, 9.9
     - **Property 20: Deleting a link removes exactly that link** — Validates: Requirements 9.5
     - **Property 21: Link collection localStorage round-trip** — Validates: Requirements 9.6, 9.7
 
-  - [-] 11.3 Implement `Links` module (DOM + persistence) inside `js/app.js`
+  - [x] 11.3 Implement `Links` module (DOM + persistence) inside `js/app.js`
     - Declare module-scoped state: `let _links = []`.
     - Write `Links.init()` — loads links via `deserializeLinks(Storage.get('tld_links'))`; if `Storage.get` returns `null` and storage appears unavailable, shows error per Req 9.8; renders panel.
     - Write `Links.addLink(name, url)` — calls `validateLink`; on success, pushes `createLink(name, url)` to `_links`, saves, re-renders, clears inputs; on failure, shows field-level inline errors.
@@ -192,17 +192,17 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - Handle `Storage.set` returning `false` with the storage-unavailable banner.
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 9.8, 9.9_
 
-- [ ] 12. Initialisation wiring
-  - [~] 12.1 Wire `DOMContentLoaded` bootstrap in `js/app.js`
+- [x] 12. Initialisation wiring
+  - [ ] 12.1 Wire `DOMContentLoaded` bootstrap in `js/app.js`
     - Inside the `DOMContentLoaded` handler, call in order: `Storage` (already initialised, no-op), `Theme.init()`, `Greeting.init()`, `Timer.init()`, `Tasks.init()`, `Links.init()`.
     - Implement the shared storage-unavailable dismissible banner (`<div id="storage-banner">`) shown when any `Storage.set` returns `false`; wire a close button.
     - _Requirements: 2.5, 6.3, 9.8, 10.5_
 
-- [~] 13. Checkpoint — All modules wired
+- [ ] 13. Checkpoint — All modules wired
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 14. Responsive layout and visual polish
-  - [~] 14.1 Complete CSS layout and visual design in `css/style.css`
+  - [-] 14.1 Complete CSS layout and visual design in `css/style.css`
     - Complete grid layout rules for all four panels (desktop ≥ 768 px placement per design).
     - Add responsive single-column stack for `< 768 px`.
     - Add max-width container (`max-width: 1400px; margin: auto`) for `> 1400 px`.
@@ -213,7 +213,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - Style link buttons and their delete `×` controls.
     - _Requirements: 12.3, 10.2_
 
-  - [~] 14.2 Add accessibility attributes to `index.html` and rendered HTML
+  - [-] 14.2 Add accessibility attributes to `index.html` and rendered HTML
     - Add `aria-label` or `<label>` for every interactive control (name input, duration input, theme toggle, sort select, task add input, link name/URL inputs).
     - Link all error `<span class="error-msg">` elements to their inputs via `aria-describedby`.
     - Ensure timer notification region has `role="status"` or `aria-live="polite"`.
@@ -221,19 +221,19 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - _Requirements: 5.3, 5.4 (inline errors must be screen-reader accessible)_
 
 - [ ] 15. Unit tests for all pure helpers
-  - [~] 15.1 Write unit tests for Greeting helpers in `js/app.test.js`
+  - [ ] 15.1 Write unit tests for Greeting helpers in `js/app.test.js`
     - Test `formatTime`: boundary hours (0, 23), boundary minutes (0, 59), single-digit padding.
     - Test `formatDate`: spot-check known dates, day/month names.
     - Test `getGreeting`: all 24 hours, boundary hours (5, 12, 18, 21, 0, 4).
     - Test `buildGreetingMessage`: with non-empty name, empty name, whitespace-only name.
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 2.2_
 
-  - [~] 15.2 Write unit tests for Timer helpers in `js/app.test.js`
+  - [ ] 15.2 Write unit tests for Timer helpers in `js/app.test.js`
     - Test `formatTimer`: 0 s, 60 s, 3600 s, 7200 s, boundary padding.
     - Test `validateDuration`: valid (1, 25, 120), invalid (0, 121, -1, 1.5, NaN, "25", null).
     - _Requirements: 3.1, 3.9, 4.1, 4.4_
 
-  - [~] 15.3 Write unit tests for Task helpers in `js/app.test.js`
+  - [ ] 15.3 Write unit tests for Task helpers in `js/app.test.js`
     - Test `validateTaskTitle`: empty string, whitespace-only, 1 char, 200 chars, 201 chars.
     - Test `isDuplicate`: exact match, case-insensitive match, trim match, no match.
     - Test `createTask`: returned object shape and defaults.
@@ -244,7 +244,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - Test `serializeTasks` / `deserializeTasks`: round-trip, malformed JSON returns `[]`.
     - _Requirements: 5.2, 5.3, 5.4, 5.6, 5.8, 5.11, 7.1, 8.2, 8.3, 8.4_
 
-  - [~] 15.4 Write unit tests for Link helpers in `js/app.test.js`
+  - [ ] 15.4 Write unit tests for Link helpers in `js/app.test.js`
     - Test `validateLink`: valid submission, empty name, name > 50 chars, non-http URL, URL > 2048 chars, count = 20.
     - Test `createLink`: returned object shape.
     - Test `deleteLink`: removes correct element, length decreases by 1.
@@ -252,7 +252,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - Test `resolveTheme`: `'light'`, `'dark'`, `null`, `''`, unrecognised string.
     - _Requirements: 9.2, 9.3, 9.5, 9.9, 10.4_
 
-- [~] 16. Final checkpoint — all tests pass
+- [ ] 16. Final checkpoint — all tests pass
   - Ensure all unit and property-based tests pass, ask the user if questions arise.
 
 ---

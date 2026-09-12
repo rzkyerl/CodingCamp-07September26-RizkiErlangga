@@ -24,13 +24,13 @@
     <main id="main-content" class="dashboard" aria-label="Todo Life Dashboard">
       <section class="panel panel-greeting" aria-labelledby="greeting-heading">
         <h2 id="greeting-heading">Today</h2>
-        <p id="greeting-time" class="greeting-time" aria-live="polite">--:--</p>
+        <p id="greeting-time" class="greeting-time" aria-live="polite" aria-atomic="true">--:--</p>
         <p id="greeting-date" class="greeting-date">Loading date…</p>
         <p id="greeting-message" class="greeting-message" aria-live="polite">Good day</p>
 
         <div class="field-group">
           <label for="greeting-name-input">Display name</label>
-          <input id="greeting-name-input" name="greeting-name" type="text" maxlength="50" autocomplete="name" placeholder="Enter your name">
+          <input id="greeting-name-input" name="greeting-name" type="text" maxlength="50" autocomplete="name" placeholder="Enter your name" aria-describedby="greeting-name-error">
           <span id="greeting-name-error" class="error-msg" role="alert" aria-live="polite"></span>
         </div>
       </section>
@@ -39,7 +39,7 @@
         <h2 id="timer-heading">Focus timer</h2>
 
         <div class="timer-display-wrap">
-          <div id="timer-display" class="timer-display" aria-live="polite" aria-label="Time remaining">25:00</div>
+          <div id="timer-display" class="timer-display" role="timer" aria-live="polite" aria-atomic="true" aria-label="Time remaining">25:00</div>
           <div class="timer-notification" role="status" aria-live="polite">Focus session complete!</div>
         </div>
 
@@ -51,7 +51,7 @@
 
         <div class="field-group timer-duration-field">
           <label for="timer-duration">Duration (minutes)</label>
-          <input id="timer-duration" name="timer-duration" type="number" min="1" max="120" step="1" value="25" inputmode="numeric">
+          <input id="timer-duration" name="timer-duration" type="number" min="1" max="120" step="1" value="25" inputmode="numeric" aria-describedby="timer-duration-error">
           <span id="timer-duration-error" class="error-msg" role="alert" aria-live="polite"></span>
         </div>
       </section>

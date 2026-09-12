@@ -312,6 +312,11 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789189899588
+      },
+      {
+        "executionId": "0d4711d9-1550-49b4-b209-593c76e167e0",
+        "chatSessionId": "sess_15e6cebf-ad37-45bc-8217-26c61f9aec19",
+        "timestamp": 1789191170175
       }
     ],
     "9.3 Implement `Tasks` module (DOM + persistence) inside `js/app.js`": [
@@ -324,6 +329,11 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789189900543
+      },
+      {
+        "executionId": "0d4711d9-1550-49b4-b209-593c76e167e0",
+        "chatSessionId": "sess_15e6cebf-ad37-45bc-8217-26c61f9aec19",
+        "timestamp": 1789191172078
       }
     ],
     "9.4 Write property test for Sort preference round-trip (Property 17)": [
@@ -377,6 +387,11 @@
         "executionId": "45b740fd-14b5-423f-8cb6-725e8f645a43",
         "chatSessionId": "sess_15e6cebf-ad37-45bc-8217-26c61f9aec19",
         "timestamp": 1789190237096
+      },
+      {
+        "executionId": "0d4711d9-1550-49b4-b209-593c76e167e0",
+        "chatSessionId": "sess_15e6cebf-ad37-45bc-8217-26c61f9aec19",
+        "timestamp": 1789191172124
       }
     ],
     "11.3 Implement `Links` module (DOM + persistence) inside `js/app.js`": [
@@ -389,6 +404,11 @@
         "executionId": "45b740fd-14b5-423f-8cb6-725e8f645a43",
         "chatSessionId": "sess_15e6cebf-ad37-45bc-8217-26c61f9aec19",
         "timestamp": 1789190243639
+      },
+      {
+        "executionId": "0d4711d9-1550-49b4-b209-593c76e167e0",
+        "chatSessionId": "sess_15e6cebf-ad37-45bc-8217-26c61f9aec19",
+        "timestamp": 1789191172391
       }
     ],
     "12.1 Wire `DOMContentLoaded` bootstrap in `js/app.js`": [
@@ -396,6 +416,16 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789186692989
+      },
+      {
+        "executionId": "0d4711d9-1550-49b4-b209-593c76e167e0",
+        "chatSessionId": "sess_15e6cebf-ad37-45bc-8217-26c61f9aec19",
+        "timestamp": 1789191216565
+      },
+      {
+        "executionId": "0d4711d9-1550-49b4-b209-593c76e167e0",
+        "chatSessionId": "sess_15e6cebf-ad37-45bc-8217-26c61f9aec19",
+        "timestamp": 1789191274815
       }
     ],
     "13. Checkpoint — All modules wired": [
@@ -410,6 +440,11 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789186693049
+      },
+      {
+        "executionId": "b22fd548-cb08-4208-b2be-90c7c9fd4a20",
+        "chatSessionId": "sess_15e6cebf-ad37-45bc-8217-26c61f9aec19",
+        "timestamp": 1789191509209
       }
     ],
     "14.2 Add accessibility attributes to `index.html` and rendered HTML": [
@@ -417,6 +452,11 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789186693083
+      },
+      {
+        "executionId": "b22fd548-cb08-4208-b2be-90c7c9fd4a20",
+        "chatSessionId": "sess_15e6cebf-ad37-45bc-8217-26c61f9aec19",
+        "timestamp": 1789191515139
       }
     ],
     "15.1 Write unit tests for Greeting helpers in `js/app.test.js`": [
@@ -487,6 +527,27 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789189393447
+      }
+    ],
+    "9. Task List": [
+      {
+        "executionId": "0d4711d9-1550-49b4-b209-593c76e167e0",
+        "chatSessionId": "sess_15e6cebf-ad37-45bc-8217-26c61f9aec19",
+        "timestamp": 1789191172162
+      }
+    ],
+    "11. Quick Links panel": [
+      {
+        "executionId": "0d4711d9-1550-49b4-b209-593c76e167e0",
+        "chatSessionId": "sess_15e6cebf-ad37-45bc-8217-26c61f9aec19",
+        "timestamp": 1789191172453
+      }
+    ],
+    "12. Initialisation wiring": [
+      {
+        "executionId": "0d4711d9-1550-49b4-b209-593c76e167e0",
+        "chatSessionId": "sess_15e6cebf-ad37-45bc-8217-26c61f9aec19",
+        "timestamp": 1789191274916
       }
     ]
   }
