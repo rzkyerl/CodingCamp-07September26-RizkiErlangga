@@ -85,7 +85,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
 - [~] 6. Checkpoint — Greeting and Theme
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 7. Focus Timer
+- [x] 7. Focus Timer
   - [x] 7.1 Implement pure Timer helpers inside `js/app.js`
     - Write `formatTimer(totalSeconds)` — returns `"MM:SS"` (zero-padded).
     - Write `validateDuration(value)` — returns `true` iff `value` is an integer satisfying `1 ≤ value ≤ 120`.
@@ -106,21 +106,21 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - Wire the duration input's `change`/`blur` to `Timer.setDuration()`.
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 3.10, 4.1, 4.2, 4.3, 4.4, 4.5_
 
-  - [-] 7.4 Implement Web Audio API end-of-session alert inside `js/app.js`
+  - [x] 7.4 Implement Web Audio API end-of-session alert inside `js/app.js`
     - Create `AudioContext` lazily on first user interaction (store in a module-scoped variable).
     - On session end, create an `OscillatorNode` (sine wave, ~440 Hz, ~0.5 s duration), connect to destination, start and stop.
     - If `AudioContext` is unsupported, skip audio silently; the `.timer-notification` overlay still shows.
     - Dismiss the `.timer-notification` overlay on the next Start or Reset call.
     - _Requirements: 3.6_
 
-  - [-] 7.5 Write property test for Timer duration round-trip (Property 8)
+  - [x] 7.5 Write property test for Timer duration round-trip (Property 8)
     - **Property 8: Pomodoro duration localStorage round-trip** — Validates: Requirements 4.3
 
 - [~] 8. Checkpoint — Timer
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 9. Task List
-  - [~] 9.1 Implement pure Task helpers inside `js/app.js`
+  - [x] 9.1 Implement pure Task helpers inside `js/app.js`
     - Write `validateTaskTitle(title)` — returns `{ valid: boolean, error: string }`; checks non-empty trim, max 200 chars.
     - Write `isDuplicate(tasks, title)` — returns `true` if `tasks` contains any item where `trimAndLower(item.title) === trimAndLower(title)`.
     - Write `createTask(title)` — returns a new Task object (`id`, `title: title.trim()`, `completed: false`, `createdAt: Date.now()`).

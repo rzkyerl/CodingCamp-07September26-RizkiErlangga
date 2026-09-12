@@ -125,9 +125,110 @@ const Utils = {
 
 // =============================================================================
 // Task helpers — pure functions (no DOM dependencies).
-// Full implementations are provided in task 9.1; these stubs satisfy the
-// Node.js export guard so property tests can import and exercise them.
 // =============================================================================
+
+/**
+ * Validates a task title string.
+ * Rules:
+ *   - Trimmed length must be >= 1 (non-empty / not whitespace-only).
+ *   - Raw length must be <= 200 characters.
+ * @param {string} title
+ * @returns {{ valid: boolean, error: string }}
+ */
+function validateTaskTitle(title) {
+  if (!title || title.trim().length === 0) {
+    return { valid: false, error: 'Title is required.' };
+  }
+  if (title.length > 200) {
+    return { valid: false, error: 'Title must be 200 characters or fewer.' };
+  }
+  return { valid: true, error: '' };
+}
+
+/**
+ * Returns true if the tasks array already contains an item whose trimmed,
+ * lowercased title matches the given title (case-insensitive, trim-invariant).
+ * @param {Object[]} tasks
+ * @param {string} title
+ * @returns {boolean}
+ */
+function isDuplicate(tasks, title) {
+  const normalised = Utils.trimAndLower(title);
+  return tasks.some(t => Utils.trimAndLower(t.title) === normalised);
+}
+
+/**
+ * Creates a new Task object from a title string.
+ * @param {string} title
+ * @returns {{ id: string, title: string, completed: boolean, createdAt: number }}
+ */
+function createTask(title) {
+  return {
+    id:        Utils.generateId(),
+    title:     title.trim(),
+    completed: false,
+    createdAt: Date.now(),
+  };
+}
+
+/**
+ * Returns a new Task with the `completed` flag flipped; all other fields
+ * are preserved unchanged.
+ * @param {{ id: string, title: string, completed: boolean, createdAt: number }} task
+ * @returns {{ id: string, title: string, completed: boolean, createdAt: number }}
+ */
+function toggleTask(task) {
+  return { ...task, completed: !task.completed };
+}
+
+/**
+ * Returns a new Task with the title replaced by `newTitle.trim()`; all other
+ * fields (id, completed, createdAt) are preserved unchanged.
+ * @param {{ id: string, title: string, completed: boolean, createdAt: number }} task
+ * @param {string} newTitle
+ * @returns {{ id: string, title: string, completed: boolean, createdAt: number }}
+ */
+function editTask(task, newTitle) {
+  return { ...task, title: newTitle.trim() };
+}
+
+/**
+ * Returns a new array that excludes the task whose `.id` matches `id`.
+ * Does not mutate the input array.
+ * @param {Object[]} tasks
+ * @param {string} id
+ * @returns {Object[]}
+ */
+function deleteTask(tasks, id) {
+  return tasks.filter(t => t.id !== id);
+}
+
+/**
+ * Returns a new sorted copy of `tasks` according to `option`.
+ *   'default' → newest first (descending createdAt)
+ *   'az'      → ascending by trimmed, lowercased title
+ *   'za'      → descending by trimmed, lowercased title
+ * The original array is NOT mutated.
+ * @param {Object[]} tasks
+ * @param {'default'|'az'|'za'} option
+ * @returns {Object[]}
+ */
+function sortTasks(tasks, option) {
+  const copy = [...tasks];
+  if (option === 'az') {
+    copy.sort((a, b) =>
+      Utils.trimAndLower(a.title).localeCompare(Utils.trimAndLower(b.title))
+    );
+  } else if (option === 'za') {
+    copy.sort((a, b) =>
+      Utils.trimAndLower(b.title).localeCompare(Utils.trimAndLower(a.title))
+    );
+  } else {
+    // 'default': newest first
+    copy.sort((a, b) => b.createdAt - a.createdAt);
+  }
+  return copy;
+}
 
 /**
  * Serialises a task array to a JSON string.
@@ -140,7 +241,7 @@ function serializeTasks(tasks) {
 
 /**
  * Deserialises a JSON string to a task array.
- * Returns [] on any parse error.
+ * Returns [] on any parse error or if the result is not an array.
  * @param {string|null} json
  * @returns {Object[]}
  */
@@ -483,14 +584,54 @@ let _pendingDuration = null;
 /** @type {number|null} setInterval handle for the 1-second tick. */
 let _timerIntervalId = null;
 
+/**
+ * Lazily-created AudioContext.
+ * Must be created inside a user-gesture handler to satisfy browser
+ * autoplay policies — initialised on the first Timer.start() call.
+ * @type {AudioContext|null}
+ */
+let _audioContext = null;
+
 // --------------- private helpers --------------------------------------------
 
 /**
- * Stub for the Web Audio API alert — implemented in task 7.4.
+ * Initialises `_audioContext` on the first call (no-op thereafter).
+ * Must be called from inside a user-gesture handler (e.g. Timer.start()).
+ * Silently does nothing if the Web Audio API is unavailable.
+ */
+function _initAudioContext() {
+  if (_audioContext !== null) return;
+  // Both the standard and webkit-prefixed constructors are checked for
+  // compatibility with older Safari versions.
+  const Ctor = typeof AudioContext !== 'undefined'
+    ? AudioContext
+    : (typeof webkitAudioContext !== 'undefined' ? webkitAudioContext : null);
+  if (Ctor) {
+    try {
+      _audioContext = new Ctor();
+    } catch (e) {
+      // Construction failed — audio will be silently skipped.
+    }
+  }
+}
+
+/**
+ * Plays a short beep (~440 Hz sine wave, 0.5 s) via the Web Audio API.
  * Called when the countdown reaches zero.
+ * No-op if AudioContext was never initialised or is unsupported.
  */
 function _playTimerAlert() {
-  // Intentionally empty; real implementation added in task 7.4.
+  if (_audioContext === null) return;
+  try {
+    const oscillator = _audioContext.createOscillator();
+    oscillator.type = 'sine';
+    oscillator.frequency.value = 440; // A4 note
+    oscillator.connect(_audioContext.destination);
+    oscillator.start(_audioContext.currentTime);
+    oscillator.stop(_audioContext.currentTime + 0.5);
+  } catch (e) {
+    // Audio playback failed — visual notification still shows, so this is safe to swallow.
+  }
 }
 
 /**
@@ -615,6 +756,10 @@ const Timer = {
   start() {
     if (_timerState === 'RUNNING') return;
 
+    // Initialise AudioContext on this user gesture so the alert is allowed
+    // by browser autoplay policies when the session later completes.
+    _initAudioContext();
+
     // Dismiss the notification overlay if visible (re-starting after session end).
     const notification = document.querySelector('.timer-notification');
     if (notification) notification.classList.remove('visible');
@@ -729,16 +874,28 @@ if (typeof module !== 'undefined') {
     Storage,
     KEYS,
     Utils,
+    // Task helpers
+    validateTaskTitle,
+    isDuplicate,
+    createTask,
+    toggleTask,
+    editTask,
+    deleteTask,
+    sortTasks,
     serializeTasks,
     deserializeTasks,
+    // Link helpers
     serializeLinks,
     deserializeLinks,
+    // Theme helpers
     resolveTheme,
     Theme,
+    // Greeting helpers
     formatTime,
     formatDate,
     getGreeting,
     buildGreetingMessage,
+    // Timer helpers
     formatTimer,
     validateDuration,
   };

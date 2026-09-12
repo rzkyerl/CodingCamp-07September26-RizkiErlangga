@@ -581,6 +581,47 @@ const validLinksArb = fc.uniqueArray(validLinkArb, { maxLength: 20, selector: l 
     }
   });
 
+  // -------------------------------------------------------------------------
+  // Property 8 (semantic): Pomodoro duration localStorage round-trip
+  // Feature: todo-life-dashboard, Property 8: Pomodoro duration localStorage round-trip
+  //
+  // For any integer d in [1, 120]:
+  //   1. Save String(d) to Storage under KEYS.DURATION.
+  //   2. Read it back with Storage.get, parse with parseInt(result, 10).
+  //   3. The parsed integer must equal d.
+  //   4. validateDuration(parsed) must return true.
+  // -------------------------------------------------------------------------
+  await test('Property 8 (semantic) — Pomodoro duration: parseInt(Storage.get()) === d (Req 4.3)', () => {
+    installMockLocalStorage();
+    fc.assert(
+      fc.property(validDurationArb, (d) => {
+        // Persist as string (mirrors how Timer.setDuration stores the value).
+        Storage.set(KEYS.DURATION, String(d));
+
+        // Load back and parse.
+        const loaded = Storage.get(KEYS.DURATION);
+        const parsed = parseInt(loaded, 10);
+
+        // The round-tripped integer must equal the original value.
+        assert.strictEqual(
+          parsed,
+          d,
+          `Expected parseInt(Storage.get(KEYS.DURATION)) = ${d} but got ${parsed}`
+        );
+
+        // The parsed value must still pass duration validation.
+        assert.strictEqual(
+          validateDuration(parsed),
+          true,
+          `validateDuration(${parsed}) should be true for d=${d}`
+        );
+
+        return true;
+      }),
+      { numRuns: 120 }  // run once per possible valid duration value
+    );
+  });
+
   // ---------------------------------------------------------------------------
   // Summary
   // ---------------------------------------------------------------------------

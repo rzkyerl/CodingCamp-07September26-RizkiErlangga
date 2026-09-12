@@ -11,6 +11,10 @@
     "7.2 Write property tests for Timer helpers (Properties 6–7)": {
       "status": "passed",
       "lastRunTimestamp": 1789188829256
+    },
+    "7.5 Write property test for Timer duration round-trip (Property 8)": {
+      "status": "passed",
+      "lastRunTimestamp": 1789189352224
     }
   },
   "executionHistory": {
@@ -242,6 +246,11 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789189271487
+      },
+      {
+        "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
+        "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
+        "timestamp": 1789189392745
       }
     ],
     "7.5 Write property test for Timer duration round-trip (Property 8)": [
@@ -254,6 +263,11 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789189272113
+      },
+      {
+        "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
+        "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
+        "timestamp": 1789189393394
       }
     ],
     "8. Checkpoint — Timer": [
@@ -268,6 +282,16 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789186692702
+      },
+      {
+        "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
+        "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
+        "timestamp": 1789189402019
+      },
+      {
+        "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
+        "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
+        "timestamp": 1789189887952
       }
     ],
     "9.2 Write property tests for Task helpers (Properties 9–16)": [
@@ -408,6 +432,13 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789187987281
+      }
+    ],
+    "7. Focus Timer": [
+      {
+        "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
+        "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
+        "timestamp": 1789189393447
       }
     ]
   }
