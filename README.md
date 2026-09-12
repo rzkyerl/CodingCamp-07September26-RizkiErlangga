@@ -1,12 +1,22 @@
 # Todo Life Dashboard
 
-Todo Life Dashboard is a single-page web application designed to support daily productivity. It includes a time and greeting panel, a Pomodoro focus timer, a to-do list, quick links, and light and dark themes.
+Todo Life Dashboard is a single-page web application designed to support daily productivity. It includes a personalized profile panel, a Pomodoro focus timer, a to-do list, quick links, and light and dark themes.
 
-The application is built with HTML, CSS, and Vanilla JavaScript. It does not require a framework, backend, build tool, or external runtime resources. User data is stored in the browser using `localStorage`.
+The application is built with HTML, CSS, and Vanilla JavaScript. It does not require a framework, backend, or build tool. User data is stored in the browser using `localStorage`. Lucide icons are loaded from the Lucide CDN for interface controls.
+
+## Documentation
+
+### Light Mode
+
+![Todo Life Dashboard in light mode](images/light-mode.png)
+
+### Dark Mode
+
+![Todo Life Dashboard in dark mode](images/dark-mode.png)
 
 ## Features
 
-### Time and Greeting Panel
+### Profile and Greeting Panel
 
 - Displays the local time in 24-hour `HH:MM` format.
 - Updates the time every 60 seconds.
@@ -16,13 +26,18 @@ The application is built with HTML, CSS, and Vanilla JavaScript. It does not req
   - `12:00–17:59`: Good afternoon
   - `18:00–20:59`: Good evening
   - `21:00–04:59`: Good night
-- Allows the user to enter, save, and display a personalized name.
+- Allows the user to enter and save a personalized display name from the Settings modal.
+- Supports a user profile bio that is displayed dynamically on the dashboard.
+- Displays pending tasks, completed tasks, and focus-session summary statistics.
+- Uses a two-column layout on desktop and a full-width responsive card on mobile.
 
 ### Focus Timer
 
 - Displays the countdown in `MM:SS` format.
+- Uses a circular progress ring that decreases as the session runs.
 - Uses a default duration of 25 minutes.
 - Allows durations from 1 to 120 minutes.
+- Provides quick presets: Break 5m, 15m, 25m, and 50m.
 - Provides Start, Stop, and Reset controls.
 - Stop pauses the timer while preserving the remaining time.
 - Reset stops the timer and restores the active duration.
@@ -41,6 +56,9 @@ The application is built with HTML, CSS, and Vanilla JavaScript. It does not req
   - Default (Date Added)
   - A → Z
   - Z → A
+- Supports priority badges: High, Medium, and Low.
+- Supports drag-and-drop task reordering.
+- Shows visual feedback when a task is completed.
 - Stores tasks and sorting preferences in `localStorage`.
 
 ### Quick Links
@@ -52,15 +70,23 @@ The application is built with HTML, CSS, and Vanilla JavaScript. It does not req
 - Supports up to 20 links.
 - Opens links in a new browser tab.
 - Allows links to be deleted.
+- Adds links through a modal instead of a permanent input form.
+- Displays shortcuts in a favicon grid.
+- Supports drag-and-drop shortcut reordering.
 - Stores links in `localStorage`.
 
 ### Themes and Accessibility
 
 - Supports light and dark themes.
+- Uses a sliding Dark Mode switch in the sticky header.
+- Dynamically changes the main background gradient for light and dark themes.
 - Saves and restores the selected theme when the page is reloaded.
 - Defaults to the light theme.
+- Keeps the dashboard header visible while scrolling.
+- Provides Settings and Add Shortcut as modal pop-ups.
+- Requires confirmation before clearing all saved data.
 - Includes labels, ARIA attributes, error messages, and visible focus indicators for keyboard and screen-reader users.
-- Provides a responsive layout for viewport widths from 320px to 2560px without horizontal scrolling.
+- Provides a responsive layout for viewport widths from 320px to 2560px without horizontal scrolling. On mobile, cards appear in this order: Today, Tasks, Focus Timer, Quick Links.
 
 ## Project Structure
 
@@ -72,6 +98,9 @@ The application is built with HTML, CSS, and Vanilla JavaScript. It does not req
 ├── js/
 │   ├── app.js
 │   └── app.test.js
+├── images/
+│   ├── light-mode.png
+│   └── dark-mode.png
 ├── package.json
 ├── package-lock.json
 └── README.md
@@ -116,7 +145,8 @@ The application uses the following `localStorage` keys:
 
 | Key | Purpose |
 | --- | --- |
-| `tld_name` | User name for the greeting panel |
+| `tld_name` | User name for the greeting and profile panel |
+| `tld_bio` | User profile bio |
 | `tld_duration` | Focus timer duration |
 | `tld_tasks` | Task collection |
 | `tld_sort` | Task sorting preference |
@@ -130,15 +160,15 @@ If `localStorage` is unavailable or a write fails, the application remains usabl
 The implementation follows these requirements:
 
 1. Time, date, and contextual greeting display.
-2. Personalized user name support.
-3. Configurable focus timer duration.
+2. Personalized user profile name and bio.
+3. Configurable focus timer with circular progress and presets.
 4. Visual and audio notifications when a session ends.
-5. Task CRUD operations with validation and duplicate prevention.
-6. Task and sorting persistence.
-7. Quick-link management with URL validation.
-8. Light and dark themes.
-9. A single HTML file, one CSS file, and one main JavaScript file.
-10. Responsive layout, accessibility, and modern browser compatibility.
+5. Task CRUD operations with priority, validation, and duplicate prevention.
+6. Task sorting, drag-and-drop ordering, and persistence.
+7. Quick-link management with modal input, favicons, drag-and-drop, and URL validation.
+8. Light and dark themes with dynamic background colors.
+9. Modal Settings with explicit Save Changes and clear-data confirmation.
+10. A sticky header, responsive layout, accessibility, and modern browser compatibility.
 
 ## Supported Browsers
 

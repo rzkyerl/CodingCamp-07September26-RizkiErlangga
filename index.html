@@ -6,105 +6,225 @@
   <meta name="description" content="Personal productivity dashboard with a focus timer, task list, and quick links.">
   <title>Todo Life Dashboard</title>
   <link rel="stylesheet" href="css/style.css">
+  <script src="https://unpkg.com/lucide@latest" defer></script>
   <script src="js/app.js" defer></script>
 </head>
 <body>
   <div class="page-wrapper">
     <header class="site-header">
-      <button id="theme-toggle" type="button" aria-pressed="false" aria-label="Switch to dark theme">
-        <span id="theme-toggle-label">Dark mode</span>
-      </button>
+      <h1 class="site-title">Todo Life Dashboard</h1>
+      <div class="header-actions">
+        <button id="theme-toggle" type="button" role="switch" aria-checked="false" aria-pressed="false" aria-label="Switch to dark theme">
+          <span class="theme-switch" aria-hidden="true"><span class="theme-switch-thumb"></span></span>
+          <span id="theme-toggle-label">Dark mode</span>
+        </button>
+        <button id="settings-toggle" type="button" aria-label="Open settings" aria-expanded="false">
+          <i data-lucide="settings" aria-hidden="true"></i>
+        </button>
+      </div>
     </header>
 
     <div id="storage-banner" role="alert" aria-live="assertive">
       <span>Some preferences could not be saved because browser storage is unavailable.</span>
-      <button class="banner-close" type="button" aria-label="Dismiss storage warning">×</button>
+      <button class="banner-close" type="button" aria-label="Dismiss storage warning"><i data-lucide="x" aria-hidden="true"></i></button>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="settings-title" hidden>
+      <div class="modal-backdrop" tabindex="-1"></div>
+      <div class="modal-content">
+        <header class="modal-header">
+          <h2 id="settings-title">Settings</h2>
+          <button id="settings-close" type="button" aria-label="Close settings"><i data-lucide="x" aria-hidden="true"></i></button>
+        </header>
+        <div class="modal-body">
+          <section class="settings-section">
+            <h3>Profile</h3>
+            <div class="field-group">
+              <label for="settings-name-input">Display Name</label>
+              <input id="settings-name-input" name="settings-name" type="text" maxlength="50" autocomplete="name" placeholder="Enter your name" aria-describedby="settings-name-error">
+              <span id="settings-name-error" class="error-msg" role="alert" aria-live="polite"></span>
+            </div>
+            <div class="field-group">
+              <label for="settings-bio-input">Profile Bio</label>
+              <textarea id="settings-bio-input" name="settings-bio" maxlength="160" rows="3" placeholder="Write a short bio about yourself" aria-describedby="settings-bio-error"></textarea>
+              <span id="settings-bio-error" class="error-msg" role="alert" aria-live="polite"></span>
+            </div>
+          </section>
+          <section class="settings-section">
+            <h3>Preferences</h3>
+            <div class="field-group">
+              <label>Theme</label>
+              <div class="inline-field">
+                <button id="settings-theme-light" type="button" class="theme-option" data-theme="light" aria-pressed="true">
+                  <i data-lucide="sun" aria-hidden="true"></i>
+                  Light
+                </button>
+                <button id="settings-theme-dark" type="button" class="theme-option" data-theme="dark" aria-pressed="false">
+                  <i data-lucide="moon" aria-hidden="true"></i>
+                  Dark
+                </button>
+              </div>
+            </div>
+          </section>
+          <section class="settings-section">
+            <h3>Data</h3>
+            <div class="field-group">
+              <button id="clear-all-data" type="button" class="btn-danger">Clear All Data</button>
+            </div>
+          </section>
+          <div class="modal-footer settings-footer">
+            <button id="settings-save" type="button">Save Changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Link Modal -->
+    <div id="link-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="link-modal-title" hidden>
+      <div class="modal-backdrop" tabindex="-1"></div>
+      <div class="modal-content modal-content-sm">
+        <header class="modal-header">
+          <h2 id="link-modal-title">Add Shortcut</h2>
+          <button id="link-modal-close" type="button" aria-label="Close"><i data-lucide="x" aria-hidden="true"></i></button>
+        </header>
+        <form id="link-modal-form" class="dashboard-form">
+          <div class="field-group">
+            <label for="link-modal-name">Link Name</label>
+            <input id="link-modal-name" name="link-name" type="text" maxlength="50" autocomplete="off" placeholder="Example website" aria-describedby="link-modal-name-error" required>
+            <span id="link-modal-name-error" class="error-msg" role="alert" aria-live="polite"></span>
+          </div>
+          <div class="field-group">
+            <label for="link-modal-url">URL</label>
+            <input id="link-modal-url" name="link-url" type="url" maxlength="2048" autocomplete="off" placeholder="https://example.com" aria-describedby="link-modal-url-error" required>
+            <span id="link-modal-url-error" class="error-msg" role="alert" aria-live="polite"></span>
+          </div>
+          <span id="link-modal-capacity-error" class="error-msg" role="alert" aria-live="polite"></span>
+          <div class="modal-footer">
+            <button type="button" id="link-modal-cancel" class="task-cancel">Cancel</button>
+            <button type="submit">Add Link</button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <main id="main-content" class="dashboard" aria-label="Todo Life Dashboard">
-      <section class="panel panel-greeting" role="region" aria-labelledby="greeting-heading">
-        <h2 id="greeting-heading">Today</h2>
-        <p id="greeting-time" class="greeting-time" aria-live="polite" aria-atomic="true">--:--</p>
-        <p id="greeting-date" class="greeting-date">Loading date…</p>
-        <p id="greeting-message" class="greeting-message" aria-live="polite">Good day</p>
+      <!-- Left Column (Narrower) -->
+      <aside class="dashboard-sidebar" role="complementary" aria-label="Timer and Links">
+        <section class="panel panel-timer" role="region" aria-labelledby="timer-heading">
+          <h2 id="timer-heading">Focus Timer</h2>
 
-        <div class="field-group">
-          <label for="greeting-name-input">Display name</label>
-          <input id="greeting-name-input" name="greeting-name" type="text" maxlength="50" autocomplete="name" placeholder="Enter your name" aria-describedby="greeting-name-error">
-          <span id="greeting-name-error" class="error-msg" role="alert" aria-live="polite"></span>
-        </div>
-      </section>
-
-      <section class="panel panel-timer" role="region" aria-labelledby="timer-heading">
-        <h2 id="timer-heading">Focus timer</h2>
-
-        <div class="timer-display-wrap">
-          <div id="timer-display" class="timer-display" role="timer" aria-live="off" aria-atomic="true" aria-label="Time remaining">25:00</div>
-          <div class="timer-notification" role="status" aria-live="polite">Focus session complete!</div>
-        </div>
-
-        <div class="timer-controls">
-          <button id="timer-start" type="button">Start</button>
-          <button id="timer-stop" type="button" disabled>Stop</button>
-          <button id="timer-reset" type="button">Reset</button>
-        </div>
-
-        <div class="field-group timer-duration-field">
-          <label for="timer-duration">Duration (minutes)</label>
-          <input id="timer-duration" name="timer-duration" type="number" min="1" max="120" step="1" value="25" inputmode="numeric" aria-describedby="timer-duration-error">
-          <span id="timer-duration-error" class="error-msg" role="alert" aria-live="polite"></span>
-        </div>
-      </section>
-
-      <section class="panel panel-tasks" role="region" aria-labelledby="tasks-heading">
-        <h2 id="tasks-heading">Tasks</h2>
-
-        <form id="task-form" class="dashboard-form">
-          <div class="field-group">
-            <label for="task-input">New task</label>
-            <div class="inline-field">
-              <input id="task-input" name="task" type="text" maxlength="200" autocomplete="off" placeholder="What needs to be done?" aria-describedby="task-input-error">
-              <button type="submit">Add</button>
+          <div class="timer-display-wrap">
+            <div class="timer-progress-ring">
+              <svg class="progress-ring-svg" viewBox="0 0 100 100" role="img" aria-label="Timer progress">
+                <circle class="progress-ring-bg" cx="50" cy="50" r="45" fill="none" stroke-width="8"/>
+                <circle class="progress-ring-fill" cx="50" cy="50" r="45" fill="none" stroke-width="8" stroke-linecap="round" transform="rotate(-90 50 50)" stroke-dasharray="282.74" stroke-dashoffset="0"/>
+              </svg>
+              <div id="timer-display" class="timer-display" role="timer" aria-live="off" aria-atomic="true" aria-label="Time remaining">25:00</div>
             </div>
-            <span id="task-input-error" class="error-msg" role="alert" aria-live="polite"></span>
-          </div>
-        </form>
-
-        <div class="field-group sort-field">
-          <label for="task-sort">Sort tasks</label>
-          <select id="task-sort" name="task-sort">
-            <option value="default">Default (Date Added)</option>
-            <option value="az">A → Z</option>
-            <option value="za">Z → A</option>
-          </select>
-        </div>
-
-        <ul id="task-list" class="task-list" aria-labelledby="tasks-heading" aria-live="polite"></ul>
-      </section>
-
-      <section class="panel panel-links" role="region" aria-labelledby="links-heading">
-        <h2 id="links-heading">Quick links</h2>
-
-        <form id="link-add-form" class="dashboard-form">
-          <div class="field-group">
-            <label for="link-name-input">Link name</label>
-            <input id="link-name-input" name="link-name" type="text" maxlength="50" autocomplete="off" placeholder="Example website" aria-describedby="link-name-error">
-            <span id="link-name-error" class="error-msg" role="alert" aria-live="polite"></span>
+            <div class="timer-notification" role="status" aria-live="polite">Focus session complete!</div>
           </div>
 
-          <div class="field-group">
-            <label for="link-url-input">URL</label>
-            <input id="link-url-input" name="link-url" type="url" maxlength="2048" autocomplete="off" placeholder="https://example.com" required aria-describedby="link-url-error">
-            <span id="link-url-error" class="error-msg" role="alert" aria-live="polite"></span>
+          <div class="timer-presets" role="group" aria-label="Quick duration presets">
+            <button type="button" class="preset-btn" data-minutes="5" aria-label="5 minute break">Break 5m</button>
+            <button type="button" class="preset-btn active" data-minutes="15" aria-label="15 minutes">15m</button>
+            <button type="button" class="preset-btn" data-minutes="25" aria-label="25 minutes">25m</button>
+            <button type="button" class="preset-btn" data-minutes="50" aria-label="50 minutes">50m</button>
           </div>
 
-          <span id="link-capacity-error" class="error-msg" role="alert" aria-live="polite"></span>
-          <span id="link-load-error" class="error-msg" role="alert" aria-live="polite" hidden></span>
-          <button type="submit">Add Link</button>
-        </form>
+          <div class="timer-controls">
+            <button id="timer-start" type="button">Start</button>
+            <button id="timer-stop" type="button" disabled>Stop</button>
+            <button id="timer-reset" type="button">Reset</button>
+          </div>
 
-        <ul id="link-list" class="link-list" aria-labelledby="links-heading" aria-live="polite"></ul>
-      </section>
+          <div class="field-group timer-duration-field">
+            <label for="timer-duration">Custom Duration (minutes)</label>
+            <input id="timer-duration" name="timer-duration" type="number" min="1" max="120" step="1" value="25" inputmode="numeric" aria-describedby="timer-duration-error">
+            <span id="timer-duration-error" class="error-msg" role="alert" aria-live="polite"></span>
+          </div>
+        </section>
+
+        <section class="panel panel-links" role="region" aria-labelledby="links-heading">
+          <div class="panel-header">
+            <h2 id="links-heading">Quick Links</h2>
+            <button id="add-link-btn" type="button" class="icon-btn" aria-label="Add shortcut">
+              <i data-lucide="plus" aria-hidden="true"></i>
+              <span>Add Shortcut</span>
+            </button>
+          </div>
+
+          <ul id="link-list" class="link-grid" aria-labelledby="links-heading" aria-live="polite"></ul>
+        </section>
+      </aside>
+
+      <!-- Right Column (Wider) -->
+      <div class="dashboard-main" role="main">
+        <section class="panel panel-greeting" role="region" aria-labelledby="greeting-heading">
+          <div class="greeting-grid">
+            <div class="greeting-left">
+              <h2 id="greeting-heading">Today</h2>
+              <p id="greeting-time" class="greeting-time" aria-live="polite" aria-atomic="true">--:--</p>
+              <p id="greeting-date" class="greeting-date">Loading date…</p>
+              <p id="greeting-message" class="greeting-message" aria-live="polite">Good day</p>
+            </div>
+            <div class="greeting-right">
+              <div class="daily-quote profile-card" id="profile-card">
+                <p id="profile-bio">Add a short bio in Settings to tell your story.</p>
+                <footer><span id="profile-name">Your profile</span></footer>
+              </div>
+              <div class="quick-stats" id="quick-stats">
+                <div class="stat-item">
+                  <span class="stat-value" id="stat-pending">0</span>
+                  <span class="stat-label">Tasks Pending</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-value" id="stat-completed">0</span>
+                  <span class="stat-label">Completed Today</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-value" id="stat-focus">0</span>
+                  <span class="stat-label">Focus Sessions</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel panel-tasks" role="region" aria-labelledby="tasks-heading">
+          <div class="panel-header">
+            <h2 id="tasks-heading">Tasks</h2>
+          </div>
+
+          <form id="task-form" class="dashboard-form">
+            <div class="field-group">
+              <label for="task-input">New Task</label>
+              <div class="inline-field">
+                <input id="task-input" name="task" type="text" maxlength="200" autocomplete="off" placeholder="What needs to be done?" aria-describedby="task-input-error">
+                <select id="task-priority" name="task-priority" aria-label="Priority">
+                  <option value="low">Low</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="high">High</option>
+                </select>
+                <button type="submit">Add</button>
+              </div>
+              <span id="task-input-error" class="error-msg" role="alert" aria-live="polite"></span>
+            </div>
+          </form>
+
+          <div class="field-group sort-field">
+            <label for="task-sort">Sort Tasks</label>
+            <select id="task-sort" name="task-sort">
+              <option value="default">Default (Date Added)</option>
+              <option value="az">A → Z</option>
+              <option value="za">Z → A</option>
+              <option value="priority">Priority (High First)</option>
+            </select>
+          </div>
+
+          <ul id="task-list" class="task-list" aria-labelledby="tasks-heading" aria-live="polite"></ul>
+        </section>
+      </div>
     </main>
 
     <footer class="site-footer">

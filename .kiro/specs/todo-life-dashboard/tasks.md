@@ -8,7 +8,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
 
 ## Tasks
 
-- [-] 1. Project scaffolding — file structure and HTML skeleton
+- [x] 1. Project scaffolding — file structure and HTML skeleton
   - Create `index.html` at the project root with semantic landmark regions: `<header>` for the theme toggle, `<main class="dashboard">` with four child `<section>` elements (`.panel-greeting`, `.panel-timer`, `.panel-tasks`, `.panel-links`), and a `<footer>`.
   - Add `<link rel="stylesheet" href="css/style.css">` and `<script src="js/app.js" defer></script>` to `index.html`.
   - Create `css/style.css` (empty placeholder).
@@ -82,7 +82,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - Handle `Storage.set` returning `false` by showing the storage-unavailable banner.
     - _Requirements: 2.1, 2.3, 2.4, 2.5_
 
-- [ ] 6. Checkpoint — Greeting and Theme
+- [x] 6. Checkpoint — Greeting and Theme
   - Ensure all tests pass, ask the user if questions arise.
 
 - [x] 7. Focus Timer
@@ -116,7 +116,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
   - [x] 7.5 Write property test for Timer duration round-trip (Property 8)
     - **Property 8: Pomodoro duration localStorage round-trip** — Validates: Requirements 4.3
 
-- [ ] 8. Checkpoint — Timer
+- [x] 8. Checkpoint — Timer
   - Ensure all tests pass, ask the user if questions arise.
 
 - [x] 9. Task List
@@ -163,7 +163,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
   - [x] 9.4 Write property test for Sort preference round-trip (Property 17)
     - **Property 17: Sort preference localStorage round-trip** — Validates: Requirements 8.5, 8.6
 
-- [ ] 10. Checkpoint — Task List
+- [x] 10. Checkpoint — Task List
   - Ensure all tests pass, ask the user if questions arise.
 
 - [x] 11. Quick Links panel
@@ -198,7 +198,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - Implement the shared storage-unavailable dismissible banner (`<div id="storage-banner">`) shown when any `Storage.set` returns `false`; wire a close button.
     - _Requirements: 2.5, 6.3, 9.8, 10.5_
 
-- [ ] 13. Checkpoint — All modules wired
+- [x] 13. Checkpoint — All modules wired
   - Ensure all tests pass, ask the user if questions arise.
 
 - [x] 14. Responsive layout and visual polish
@@ -252,7 +252,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - Test `resolveTheme`: `'light'`, `'dark'`, `null`, `''`, unrecognised string.
     - _Requirements: 9.2, 9.3, 9.5, 9.9, 10.4_
 
-- [ ] 16. Final checkpoint — all tests pass
+- [-] 16. Final checkpoint — all tests pass
   - Ensure all unit and property-based tests pass, ask the user if questions arise.
 
 ---

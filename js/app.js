@@ -10,6 +10,7 @@
 // =============================================================================
 const KEYS = {
   NAME:     'tld_name',
+  BIO:      'tld_bio',
   DURATION: 'tld_duration',
   TASKS:    'tld_tasks',
   SORT:     'tld_sort',
@@ -166,6 +167,7 @@ function createTask(title) {
   return {
     id:        Utils.generateId(),
     title:     title.trim(),
+    priority:  'medium',
     completed: false,
     createdAt: Date.now(),
   };
@@ -223,6 +225,9 @@ function sortTasks(tasks, option) {
     copy.sort((a, b) =>
       Utils.trimAndLower(b.title).localeCompare(Utils.trimAndLower(a.title))
     );
+  } else if (option === 'priority') {
+    const weights = { high: 3, medium: 2, low: 1 };
+    copy.sort((a, b) => (weights[b.priority] || 2) - (weights[a.priority] || 2));
   } else {
     // 'default': newest first
     copy.sort((a, b) => b.createdAt - a.createdAt);
@@ -401,6 +406,7 @@ const Theme = {
     if (!el) return;
     const isDark = _currentTheme === 'dark';
     el.setAttribute('aria-pressed', String(isDark));
+    el.setAttribute('aria-checked', String(isDark));
     el.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
     const labelEl = document.getElementById('theme-toggle-label');
     if (labelEl) labelEl.textContent = isDark ? 'Light mode' : 'Dark mode';
@@ -500,6 +506,7 @@ function buildGreetingMessage(greeting, name) {
 
 /** Module-scoped state: the last successfully saved (or loaded) name. */
 let _greetingName = '';
+let _greetingBio = '';
 
 /** @type {number|null} setInterval handle for the clock tick. */
 let _greetingIntervalId = null;
@@ -513,10 +520,14 @@ function _renderGreeting() {
   const timeEl    = document.getElementById('greeting-time');
   const dateEl    = document.getElementById('greeting-date');
   const msgEl     = document.getElementById('greeting-message');
+  const bioEl     = document.getElementById('profile-bio');
+  const profileNameEl = document.getElementById('profile-name');
 
   if (timeEl) timeEl.textContent = formatTime(now);
   if (dateEl) dateEl.textContent = formatDate(now);
   if (msgEl)  msgEl.textContent  = buildGreetingMessage(getGreeting(now.getHours()), _greetingName);
+  if (bioEl) bioEl.textContent = _greetingBio || 'Add a short bio in Settings to tell your story.';
+  if (profileNameEl) profileNameEl.textContent = _greetingName || 'Your profile';
 }
 
 const Greeting = {
@@ -528,13 +539,17 @@ const Greeting = {
   init() {
     // Restore persisted name (may be null if nothing saved yet).
     const saved = Storage.get(KEYS.NAME);
+    const savedBio = Storage.get(KEYS.BIO);
     _greetingName = saved ? saved.trim() : '';
+    _greetingBio = savedBio ? savedBio.trim() : '';
 
     // Pre-fill the name input if we have a saved name.
-    const nameInput = document.getElementById('greeting-name-input');
+    const nameInput = document.getElementById('settings-name-input');
     if (nameInput && _greetingName) {
       nameInput.value = _greetingName;
     }
+    const bioInput = document.getElementById('settings-bio-input');
+    if (bioInput) bioInput.value = _greetingBio;
 
     // Render immediately so there is no blank flash on load.
     _renderGreeting();
@@ -560,7 +575,13 @@ const Greeting = {
 
       // Clear the inline error as soon as the user starts typing again.
       nameInput.addEventListener('input', () => {
-        const errEl = document.getElementById('greeting-name-error');
+        const errEl = document.getElementById('settings-name-error');
+        if (errEl) errEl.textContent = '';
+      });
+    }
+    if (bioInput) {
+      bioInput.addEventListener('input', () => {
+        const errEl = document.getElementById('settings-bio-error');
         if (errEl) errEl.textContent = '';
       });
     }
@@ -576,7 +597,7 @@ const Greeting = {
    */
   saveName(name) {
     const trimmed = (name || '').trim();
-    const errEl   = document.getElementById('greeting-name-error');
+    const errEl   = document.getElementById('settings-name-error');
 
     if (trimmed.length === 0 || trimmed.length > 50) {
       const msg = trimmed.length === 0
@@ -588,7 +609,7 @@ const Greeting = {
       } else {
         console.warn('[Greeting.saveName]', msg);
       }
-      return;
+      return false;
     }
 
     // Clear any previous error.
@@ -606,6 +627,23 @@ const Greeting = {
 
     // Re-render to show the updated name in the greeting message.
     _renderGreeting();
+    return true;
+  },
+
+  saveProfile(name, bio) {
+    const trimmedBio = (bio || '').trim();
+    const bioError = document.getElementById('settings-bio-error');
+    if (trimmedBio.length > 160) {
+      if (bioError) bioError.textContent = 'Bio must be 160 characters or fewer.';
+      return false;
+    }
+    if (!Greeting.saveName(name)) return false;
+    if (bioError) bioError.textContent = '';
+    _greetingBio = trimmedBio;
+    const ok = Storage.set(KEYS.BIO, trimmedBio);
+    if (!ok) _showStorageBanner();
+    _renderGreeting();
+    return true;
   },
 };
 
@@ -726,6 +764,13 @@ function _playTimerAlert() {
 function _renderTimerDisplay() {
   const display = document.getElementById('timer-display');
   if (display) display.textContent = formatTimer(_remaining);
+  const ring = document.querySelector('.progress-ring-fill');
+  if (ring) {
+    const circumference = 2 * Math.PI * 45;
+    const progress = _duration > 0 ? _remaining / (_duration * 60) : 0;
+    ring.style.strokeDasharray = String(circumference);
+    ring.style.strokeDashoffset = String(circumference * (1 - progress));
+  }
 }
 
 /**
@@ -832,6 +877,15 @@ const Timer = {
     if (resetBtn) {
       resetBtn.addEventListener('click', () => Timer.reset());
     }
+
+    document.querySelectorAll('.preset-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        const minutes = parseInt(button.dataset.minutes, 10);
+        Timer.setDuration(minutes);
+        document.querySelectorAll('.preset-btn').forEach(option => option.classList.remove('active'));
+        button.classList.add('active');
+      });
+    });
   },
 
   /**
@@ -1005,6 +1059,12 @@ function _escapeHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
+function _refreshIcons() {
+  if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+    lucide.createIcons();
+  }
+}
+
 /**
  * Returns the HTML string for a single task row in read mode.
  * @param {{id:string, title:string, completed:boolean, createdAt:number}} task
@@ -1017,7 +1077,7 @@ function _renderTaskItemReadMode(task) {
   const escapedId      = _escapeHtml(task.id);
 
   return `
-    <li class="task-item${completedClass}" data-id="${escapedId}">
+    <li class="task-item${completedClass}" data-id="${escapedId}" draggable="true">
       <label class="task-checkbox-label">
         <input
           type="checkbox"
@@ -1027,17 +1087,18 @@ function _renderTaskItemReadMode(task) {
         >
       </label>
       <span class="task-title">${escapedTitle}</span>
+      <span class="priority-badge priority-${task.priority || 'medium'}">${task.priority || 'medium'}</span>
       <div class="task-actions">
         <button
           type="button"
           class="task-edit"
           aria-label="Edit task: ${escapedTitle}"
-        >✎</button>
+        ><i data-lucide="pencil" aria-hidden="true"></i></button>
         <button
           type="button"
           class="task-delete"
           aria-label="Delete task: ${escapedTitle}"
-        >✕</button>
+        ><i data-lucide="trash-2" aria-hidden="true"></i></button>
       </div>
     </li>`.trim();
 }
@@ -1101,7 +1162,10 @@ function _renderTaskList() {
   if (!listEl) return;
 
   const sorted = sortTasks(_tasks, _sort);
-  listEl.innerHTML = sorted.map(_renderTaskItem).join('');
+  listEl.innerHTML = sorted.length > 0
+    ? sorted.map(_renderTaskItem).join('')
+    : '<li class="task-list__empty"><i data-lucide="clipboard-check" aria-hidden="true"></i><span>No tasks yet. Add one above.</span></li>';
+  _refreshIcons();
 
   // Focus the edit input if we just switched a row into edit mode.
   if (_editingId !== null) {
@@ -1119,6 +1183,14 @@ function _renderTaskList() {
   if (sortSelect && sortSelect.value !== _sort) {
     sortSelect.value = _sort;
   }
+  _renderQuickStats();
+}
+
+function _renderQuickStats() {
+  const pending = document.getElementById('stat-pending');
+  const completed = document.getElementById('stat-completed');
+  if (pending) pending.textContent = String(_tasks.filter(task => !task.completed).length);
+  if (completed) completed.textContent = String(_tasks.filter(task => task.completed).length);
 }
 
 /**
@@ -1183,7 +1255,8 @@ const Tasks = {
       taskForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const input = document.getElementById('task-input');
-        if (input) Tasks.addTask(input.value);
+        const priority = document.getElementById('task-priority');
+        if (input) Tasks.addTask(input.value, priority ? priority.value : 'medium');
       });
     }
 
@@ -1217,6 +1290,32 @@ const Tasks = {
         }
       });
 
+      listEl.addEventListener('dragstart', (e) => {
+        const item = e.target.closest('.task-item');
+        if (!item) return;
+        e.dataTransfer.setData('text/plain', item.dataset.id);
+        item.classList.add('is-dragging');
+      });
+      listEl.addEventListener('dragend', (e) => {
+        const item = e.target.closest('.task-item');
+        if (item) item.classList.remove('is-dragging');
+      });
+      listEl.addEventListener('dragover', (e) => e.preventDefault());
+      listEl.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const target = e.target.closest('.task-item');
+        const sourceId = e.dataTransfer.getData('text/plain');
+        if (!target || !sourceId || target.dataset.id === sourceId) return;
+        const sourceIndex = _tasks.findIndex(task => task.id === sourceId);
+        const targetIndex = _tasks.findIndex(task => task.id === target.dataset.id);
+        if (sourceIndex < 0 || targetIndex < 0) return;
+        const [moved] = _tasks.splice(sourceIndex, 1);
+        _tasks.splice(targetIndex, 0, moved);
+        _sort = 'default';
+        _saveTasks();
+        _renderTaskList();
+      });
+
       // Clear edit-error on input inside the task list (edit mode input).
       listEl.addEventListener('input', (e) => {
         if (e.target.classList.contains('task-edit-input')) {
@@ -1234,7 +1333,7 @@ const Tasks = {
    * saves, re-renders, and clears the input.  Shows inline errors on failure.
    * @param {string} title
    */
-  addTask(title) {
+  addTask(title, priority = 'medium') {
     // Validation
     const v = validateTaskTitle(title);
     if (!v.valid) {
@@ -1261,7 +1360,7 @@ const Tasks = {
     }
 
     // Create and append
-    const task = createTask(title);
+    const task = { ...createTask(title), priority: ['low', 'medium', 'high'].includes(priority) ? priority : 'medium' };
     _tasks.push(task);
 
     // Persist
@@ -1284,6 +1383,11 @@ const Tasks = {
     _tasks = _tasks.map(t => t.id === id ? toggleTask(t) : t);
     _saveTasks();
     _renderTaskList();
+    const item = document.querySelector(`.task-item[data-id="${CSS.escape(id)}"]`);
+    if (item && item.classList.contains('task-completed')) {
+      item.classList.add('completion-pop');
+      setTimeout(() => item.classList.remove('completion-pop'), 450);
+    }
   },
 
   /**
@@ -1377,7 +1481,8 @@ function _renderLinkList() {
 
   if (_links.length === 0) {
     listEl.innerHTML =
-      '<li class="link-list__empty">No links saved yet. Add one above.</li>';
+      '<li class="link-list__empty"><i data-lucide="link-2" aria-hidden="true"></i><span>No links saved yet. Add one above.</span></li>';
+    _refreshIcons();
     return;
   }
 
@@ -1394,22 +1499,25 @@ function _renderLinkList() {
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
 
-    return `<li class="link-item" data-id="${link.id}">
+    let hostname = 'link';
+    try { hostname = new URL(link.url).hostname; } catch (e) { /* keep fallback */ }
+    return `<li class="link-item" data-id="${link.id}" draggable="true">
   <a
     class="link-btn"
     href="${safeUrl}"
     target="_blank"
     rel="noopener noreferrer"
     aria-label="Open ${safeName} in a new tab"
-  >${safeName}</a>
+  ><img class="link-favicon" src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(hostname)}&sz=64" alt="" loading="lazy"><span>${safeName}</span></a>
   <button
     class="link-delete"
     data-id="${link.id}"
     aria-label="Delete link ${safeName}"
     type="button"
-  >×</button>
+  ><i data-lucide="x" aria-hidden="true"></i></button>
 </li>`;
   }).join('');
+  _refreshIcons();
 }
 
 /**
@@ -1424,9 +1532,9 @@ function _showLinkStorageBanner() {
  * Clears inline error messages on the add-link form.
  */
 function _clearLinkErrors() {
-  const nameErr     = document.getElementById('link-name-error');
-  const urlErr      = document.getElementById('link-url-error');
-  const capacityErr = document.getElementById('link-capacity-error');
+  const nameErr     = document.getElementById('link-modal-name-error');
+  const urlErr      = document.getElementById('link-modal-url-error');
+  const capacityErr = document.getElementById('link-modal-capacity-error');
   if (nameErr)     nameErr.textContent     = '';
   if (urlErr)      urlErr.textContent      = '';
   if (capacityErr) capacityErr.textContent = '';
@@ -1467,13 +1575,13 @@ const Links = {
 
     _renderLinkList();
 
-    // ---- Wire the add-link form submit listener ----
-    const form = document.getElementById('link-add-form');
+    // ---- Wire the add-link modal form submit listener ----
+    const form = document.getElementById('link-modal-form');
     if (form) {
       form.addEventListener('submit', (e) => {
         e.preventDefault();
-        const nameInput = document.getElementById('link-name-input');
-        const urlInput  = document.getElementById('link-url-input');
+        const nameInput = document.getElementById('link-modal-name');
+        const urlInput  = document.getElementById('link-modal-url');
         const name = nameInput ? nameInput.value : '';
         const url  = urlInput  ? urlInput.value  : '';
         Links.addLink(name, url);
@@ -1481,19 +1589,19 @@ const Links = {
     }
 
     // ---- Wire input events to clear errors on user re-type ----
-    const nameInput = document.getElementById('link-name-input');
-    const urlInput  = document.getElementById('link-url-input');
+    const nameInput = document.getElementById('link-modal-name');
+    const urlInput  = document.getElementById('link-modal-url');
 
     if (nameInput) {
       nameInput.addEventListener('input', () => {
-        const errEl = document.getElementById('link-name-error');
+        const errEl = document.getElementById('link-modal-name-error');
         if (errEl) errEl.textContent = '';
       });
     }
 
     if (urlInput) {
       urlInput.addEventListener('input', () => {
-        const errEl = document.getElementById('link-url-error');
+        const errEl = document.getElementById('link-modal-url-error');
         if (errEl) errEl.textContent = '';
       });
     }
@@ -1510,6 +1618,28 @@ const Links = {
         }
         // Clicks on the <a> element are handled natively by the browser
         // (href + target="_blank").  No additional JS needed here.
+      });
+      listEl.addEventListener('dragstart', (e) => {
+        const item = e.target.closest('.link-item');
+        if (item) { e.dataTransfer.setData('text/plain', item.dataset.id); item.classList.add('is-dragging'); }
+      });
+      listEl.addEventListener('dragend', (e) => {
+        const item = e.target.closest('.link-item');
+        if (item) item.classList.remove('is-dragging');
+      });
+      listEl.addEventListener('dragover', (e) => e.preventDefault());
+      listEl.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const target = e.target.closest('.link-item');
+        const sourceId = e.dataTransfer.getData('text/plain');
+        if (!target || !sourceId || target.dataset.id === sourceId) return;
+        const sourceIndex = _links.findIndex(link => link.id === sourceId);
+        const targetIndex = _links.findIndex(link => link.id === target.dataset.id);
+        if (sourceIndex < 0 || targetIndex < 0) return;
+        const [moved] = _links.splice(sourceIndex, 1);
+        _links.splice(targetIndex, 0, moved);
+        Storage.set(KEYS.LINKS, serializeLinks(_links));
+        _renderLinkList();
       });
     }
   },
@@ -1529,21 +1659,21 @@ const Links = {
 
     if (!result.valid) {
       if (result.errors.capacity) {
-        const capacityErr = document.getElementById('link-capacity-error');
+        const capacityErr = document.getElementById('link-modal-capacity-error');
         if (capacityErr) capacityErr.textContent = result.errors.capacity;
       }
       if (result.errors.name) {
-        const nameErr = document.getElementById('link-name-error');
+        const nameErr = document.getElementById('link-modal-name-error');
         if (nameErr) nameErr.textContent = result.errors.name;
-        const nameInput = document.getElementById('link-name-input');
+        const nameInput = document.getElementById('link-modal-name');
         if (nameInput) nameInput.focus();
       }
       if (result.errors.url) {
-        const urlErr = document.getElementById('link-url-error');
+        const urlErr = document.getElementById('link-modal-url-error');
         if (urlErr) urlErr.textContent = result.errors.url;
         // Only move focus to URL input if name was valid (don't override name focus).
         if (!result.errors.name) {
-          const urlInput = document.getElementById('link-url-input');
+          const urlInput = document.getElementById('link-modal-url');
           if (urlInput) urlInput.focus();
         }
       }
@@ -1561,10 +1691,12 @@ const Links = {
     // Re-render and clear inputs.
     _renderLinkList();
 
-    const nameInput = document.getElementById('link-name-input');
-    const urlInput  = document.getElementById('link-url-input');
+    const nameInput = document.getElementById('link-modal-name');
+    const urlInput  = document.getElementById('link-modal-url');
     if (nameInput) { nameInput.value = ''; nameInput.focus(); }
     if (urlInput)  urlInput.value = '';
+    const modal = document.getElementById('link-modal');
+    if (modal) modal.hidden = true;
   },
 
   /**
@@ -1599,6 +1731,67 @@ if (typeof document !== 'undefined') {
     if (banner && closeBanner) {
       closeBanner.addEventListener('click', () => banner.classList.remove('visible'));
     }
+
+    const modalPairs = [
+      ['settings-toggle', 'settings-modal', 'settings-close'],
+      ['add-link-btn', 'link-modal', 'link-modal-close'],
+    ];
+    modalPairs.forEach(([openId, modalId, closeId]) => {
+      const openButton = document.getElementById(openId);
+      const modal = document.getElementById(modalId);
+      const closeButton = document.getElementById(closeId);
+      if (!openButton || !modal) return;
+      const close = () => {
+        modal.hidden = true;
+        openButton.setAttribute('aria-expanded', 'false');
+      };
+      openButton.addEventListener('click', () => {
+        modal.hidden = false;
+        openButton.setAttribute('aria-expanded', 'true');
+        const firstInput = modal.querySelector('input');
+        if (firstInput) firstInput.focus();
+      });
+      if (closeButton) closeButton.addEventListener('click', close);
+      const backdrop = modal.querySelector('.modal-backdrop');
+      if (backdrop) backdrop.addEventListener('click', close);
+    });
+    const linkCancel = document.getElementById('link-modal-cancel');
+    if (linkCancel) linkCancel.addEventListener('click', () => {
+      const modal = document.getElementById('link-modal');
+      if (modal) modal.hidden = true;
+    });
+    const lightTheme = document.getElementById('settings-theme-light');
+    const darkTheme = document.getElementById('settings-theme-dark');
+    [lightTheme, darkTheme].forEach(button => {
+      if (!button) return;
+      button.addEventListener('click', () => {
+        const requested = button.dataset.theme;
+        if (requested !== _currentTheme) Theme.toggle();
+        [lightTheme, darkTheme].forEach(option => {
+          if (option) option.setAttribute('aria-pressed', String(option.dataset.theme === requested));
+        });
+      });
+    });
+    const clearData = document.getElementById('clear-all-data');
+    if (clearData) clearData.addEventListener('click', () => {
+      const confirmed = window.confirm(
+        'Clear all saved data? This will remove your profile, bio, tasks, shortcuts, timer preference, and sort preference. This action cannot be undone.'
+      );
+      if (!confirmed) return;
+      [KEYS.NAME, KEYS.BIO, KEYS.DURATION, KEYS.TASKS, KEYS.SORT, KEYS.LINKS].forEach(key => Storage.remove(key));
+      window.location.reload();
+    });
+    const settingsSave = document.getElementById('settings-save');
+    if (settingsSave) settingsSave.addEventListener('click', () => {
+      const nameInput = document.getElementById('settings-name-input');
+      const bioInput = document.getElementById('settings-bio-input');
+      if (!nameInput || !bioInput || !Greeting.saveProfile(nameInput.value, bioInput.value)) return;
+      const settingsModal = document.getElementById('settings-modal');
+      const settingsToggle = document.getElementById('settings-toggle');
+      if (settingsModal) settingsModal.hidden = true;
+      if (settingsToggle) settingsToggle.setAttribute('aria-expanded', 'false');
+    });
+    _refreshIcons();
   });
 }
 
