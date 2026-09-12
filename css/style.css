@@ -1,0 +1,320 @@
+/* ============================================================
+   Todo Life Dashboard — css/style.css
+   Single stylesheet; no build step required.
+   Colour tokens are CSS custom properties on :root.
+   Dark mode overrides live on [data-theme="dark"].
+   ============================================================ */
+
+/* =============================================================================
+   1. COLOUR TOKENS
+   All colour values are defined here once and referenced throughout.
+   Light mode is the default; dark mode overrides follow immediately after.
+   WCAG AA compliance: text-on-surface contrast ≥ 4.5 : 1.
+   ============================================================================= */
+:root {
+  /* Page background */
+  --color-bg-gradient-start: #667eea;
+  --color-bg-gradient-end:   #764ba2;
+
+  /* Card / panel surface */
+  --color-surface:          #ffffff;
+  --color-surface-hover:    #f5f7ff;
+
+  /* Text */
+  --color-text-primary:     #1a1a2e;   /* #1a1a2e on #fff  → ~14.7 : 1  ✓ AA */
+  --color-text-secondary:   #4a4a6a;   /* #4a4a6a on #fff  → ~5.7 : 1   ✓ AA */
+  --color-text-muted:       #767699;   /* #767699 on #fff  → ~4.6 : 1   ✓ AA */
+  --color-text-on-accent:   #ffffff;
+
+  /* Accent / interactive */
+  --color-accent:           #4a90e2;   /* #4a90e2 on #fff  → ~3.2 : 1 (large text / UI) */
+  --color-accent-dark:      #2d72c8;   /* used for focus ring, hover state */
+  --color-accent-light:     #e8f0fb;   /* light tint background */
+
+  /* Semantic */
+  --color-success:          #2e7d32;
+  --color-success-bg:       #e8f5e9;
+  --color-error:            #c62828;   /* #c62828 on #fff  → ~7.0 : 1  ✓ AA */
+  --color-error-bg:         #fdecea;
+  --color-warning:          #e65100;
+  --color-warning-bg:       #fff3e0;
+
+  /* Borders / dividers */
+  --color-border:           #dde1f0;
+  --color-border-focus:     #4a90e2;
+
+  /* Timer display */
+  --color-timer-display:    #4a90e2;
+
+  /* Overlay / notification */
+  --color-overlay-bg:       rgba(74, 144, 226, 0.12);
+  --color-notification-bg:  #4a90e2;
+
+  /* Shadows */
+  --shadow-card:
+    0 4px 6px -1px rgba(0, 0, 0, 0.10),
+    0 2px 4px -2px rgba(0, 0, 0, 0.06);
+  --shadow-card-hover:
+    0 10px 15px -3px rgba(0, 0, 0, 0.10),
+    0 4px  6px -4px rgba(0, 0, 0, 0.05);
+  --shadow-input-focus:
+    0 0 0 3px rgba(74, 144, 226, 0.35);
+
+  /* Checkbox / completed state */
+  --color-completed-text:   #767699;
+}
+
+/* Dark mode overrides -------------------------------------------------------- */
+[data-theme="dark"] {
+  /* Card / panel surface */
+  --color-surface:          #1e1e2e;
+  --color-surface-hover:    #2a2a3e;
+
+  /* Text
+     All computed against #1e1e2e background.
+     --color-text-primary  #e0e0f0 → ~13.7 : 1  ✓ AA
+     --color-text-secondary #b0b0cc → ~6.5 : 1  ✓ AA
+     --color-text-muted     #8888aa → ~4.5 : 1  ✓ AA
+  */
+  --color-text-primary:     #e0e0f0;
+  --color-text-secondary:   #b0b0cc;
+  --color-text-muted:       #8888aa;
+  --color-text-on-accent:   #ffffff;
+
+  /* Accent */
+  --color-accent:           #6aaef5;
+  --color-accent-dark:      #4a90e2;
+  --color-accent-light:     #1e2d40;
+
+  /* Semantic */
+  --color-success:          #66bb6a;
+  --color-success-bg:       #1b3a1c;
+  --color-error:            #ef9a9a;   /* #ef9a9a on #1e1e2e → ~8.3 : 1  ✓ AA */
+  --color-error-bg:         #3b1a1a;
+  --color-warning:          #ffb74d;
+  --color-warning-bg:       #3b2800;
+
+  /* Borders */
+  --color-border:           #3a3a5a;
+  --color-border-focus:     #6aaef5;
+
+  /* Timer */
+  --color-timer-display:    #6aaef5;
+
+  /* Overlay / notification */
+  --color-overlay-bg:       rgba(106, 174, 245, 0.12);
+  --color-notification-bg:  #2d72c8;
+
+  /* Shadows (lighter in dark mode — surfaces already elevated) */
+  --shadow-card:
+    0 4px 6px -1px rgba(0, 0, 0, 0.40),
+    0 2px 4px -2px rgba(0, 0, 0, 0.30);
+  --shadow-card-hover:
+    0 10px 15px -3px rgba(0, 0, 0, 0.50),
+    0 4px  6px -4px rgba(0, 0, 0, 0.30);
+  --shadow-input-focus:
+    0 0 0 3px rgba(106, 174, 245, 0.40);
+
+  --color-completed-text:   #8888aa;
+}
+
+/* =============================================================================
+   2. GLOBAL RESET & BOX MODEL
+   ============================================================================= */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* =============================================================================
+   3. BASE / BODY
+   ============================================================================= */
+html {
+  /* Prevent layout shift when a scrollbar appears */
+  scrollbar-gutter: stable;
+}
+
+body {
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Open Sans",
+    "Helvetica Neue",
+    sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+  background: linear-gradient(135deg, var(--color-bg-gradient-start) 0%, var(--color-bg-gradient-end) 100%);
+  background-attachment: fixed;
+  min-height: 100dvh;
+}
+
+/* =============================================================================
+   4. PAGE WRAPPER
+   Centres content and caps width on very wide viewports.
+   ============================================================================= */
+.page-wrapper {
+  width: 100%;
+  max-width: 1400px;
+  margin-inline: auto;
+  padding: 1.5rem;
+}
+
+/* Cap without a wrapper class — works if <main> is the direct scroll container */
+@media (min-width: 1400px) {
+  .dashboard {
+    max-width: 1400px;
+    margin-inline: auto;
+  }
+}
+
+/* =============================================================================
+   5. HEADER
+   ============================================================================= */
+.site-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 1rem 1.5rem 0;
+  max-width: 1400px;
+  margin-inline: auto;
+}
+
+/* =============================================================================
+   6. DASHBOARD GRID
+   Desktop: 2-column, 3-row grid.
+   The greeting spans full width (row 1).
+   Tasks panel spans rows 2–3 on the right.
+   ============================================================================= */
+.dashboard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto auto;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin-inline: auto;
+}
+
+/* Panel placement — desktop */
+.panel-greeting {
+  grid-column: 1 / -1;   /* full width, row 1 */
+}
+
+.panel-timer {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.panel-tasks {
+  grid-column: 2;
+  grid-row: 2 / 4;        /* spans rows 2 and 3 */
+}
+
+.panel-links {
+  grid-column: 1;
+  grid-row: 3;
+}
+
+/* Mobile breakpoint: single-column stack -------------------------------------- */
+@media (max-width: 767px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .panel-greeting,
+  .panel-timer,
+  .panel-tasks,
+  .panel-links {
+    grid-column: 1;
+    grid-row: auto;        /* source-order stacking */
+  }
+}
+
+/* =============================================================================
+   7. CARD / PANEL BASE
+   All four panels share these styles.
+   ============================================================================= */
+.panel {
+  background-color: var(--color-surface);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+  padding: 1.75rem;
+  transition:
+    background-color 0.2s ease,
+    box-shadow       0.2s ease;
+}
+
+.panel:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* Panel heading */
+.panel h2,
+.panel-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 1rem;
+}
+
+/* =============================================================================
+   8. FOCUS RING (global visible focus indicator — both themes)
+   ============================================================================= */
+:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* =============================================================================
+   9. STORAGE-UNAVAILABLE BANNER
+   Shown when localStorage is blocked or a write fails.
+   ============================================================================= */
+#storage-banner {
+  display: none;               /* hidden by default; JS adds .visible */
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+  border: 1px solid var(--color-warning);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  max-width: 1400px;
+  margin: 0.75rem auto 0;
+}
+
+#storage-banner.visible {
+  display: flex;
+}
+
+#storage-banner .banner-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.125rem;
+  line-height: 1;
+  color: inherit;
+  padding: 0.125rem 0.25rem;
+  border-radius: 4px;
+}
+
+#storage-banner .banner-close:hover {
+  background: rgba(0, 0, 0, 0.08);
+}

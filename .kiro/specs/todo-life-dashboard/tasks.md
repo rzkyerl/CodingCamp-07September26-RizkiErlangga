@@ -24,7 +24,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - Define all six storage-key constants (`tld_name`, `tld_duration`, `tld_tasks`, `tld_sort`, `tld_links`, `tld_theme`).
     - _Requirements: 6.3, 9.8_
 
-  - [~] 2.2 Write property test for Storage round-trip (Property 5, 8, 14, 17, 21, 22)
+  - [-] 2.2 Write property test for Storage round-trip (Property 5, 8, 14, 17, 21, 22)
     - Set up `js/app.test.js` with [fast-check](https://github.com/dubzzz/fast-check) imported as an ES module (or via a `<script type="module">` in a test HTML runner for Node-less environments — use a hand-rolled assert suite backed by fast-check if Node is available).
     - **Property 5: Custom name localStorage round-trip** — Validates: Requirements 2.3
     - **Property 8: Pomodoro duration localStorage round-trip** — Validates: Requirements 4.3
@@ -42,7 +42,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - _Requirements: 11.2 (pure helpers, no external deps)_
 
 - [ ] 4. CSS base and theme tokens
-  - [~] 4.1 Define CSS custom properties and base styles in `css/style.css`
+  - [-] 4.1 Define CSS custom properties and base styles in `css/style.css`
     - Declare all colour tokens as CSS custom properties on `:root` (background, card surface, text, accent, error, etc.).
     - Add `[data-theme="dark"]` overrides for all colour tokens.
     - Set `system-ui` font stack, `box-sizing: border-box` reset, and body background gradient (`linear-gradient(135deg, #667eea 0%, #764ba2 100%)`).
