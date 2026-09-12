@@ -132,7 +132,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - Write `deserializeTasks(json)` — returns parsed array or `[]` on any error.
     - _Requirements: 5.2, 5.3, 5.4, 5.6, 5.8, 5.9, 5.10, 5.11, 7.1, 8.2, 8.3, 8.4_
 
-  - [~] 9.2 Write property tests for Task helpers (Properties 9–16)
+  - [-] 9.2 Write property tests for Task helpers (Properties 9–16)
     - **Property 9: Adding a valid task increases list length by exactly one** — Validates: Requirements 5.2
     - **Property 10: Whitespace-only titles are always invalid** — Validates: Requirements 5.3, 5.9
     - **Property 11: Task toggle is its own inverse** — Validates: Requirements 5.6
@@ -142,7 +142,7 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - **Property 15: Duplicate detection is case-insensitive and trim-invariant** — Validates: Requirements 7.1
     - **Property 16: Sort produces correct orderings** — Validates: Requirements 8.2, 8.3, 8.4
 
-  - [~] 9.3 Implement `Tasks` module (DOM + persistence) inside `js/app.js`
+  - [-] 9.3 Implement `Tasks` module (DOM + persistence) inside `js/app.js`
     - Declare module-scoped state: `let _tasks = []`, `let _sort = 'default'`.
     - Write `Tasks.init()` — loads tasks via `deserializeTasks(Storage.get('tld_tasks'))`, loads sort via `Storage.get('tld_sort')`, renders the full list.
     - Write `Tasks.addTask(title)` — validates title, checks duplicate and capacity (≤ 100), creates task, pushes to `_tasks`, saves, re-renders, clears input; shows inline error on failure.
@@ -160,14 +160,14 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - Handle `Storage.set` returning `false` with the storage-unavailable banner.
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 5.10, 5.11, 6.1, 6.2, 6.3, 6.4, 7.1, 7.2, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
 
-  - [~] 9.4 Write property test for Sort preference round-trip (Property 17)
+  - [x] 9.4 Write property test for Sort preference round-trip (Property 17)
     - **Property 17: Sort preference localStorage round-trip** — Validates: Requirements 8.5, 8.6
 
 - [~] 10. Checkpoint — Task List
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 11. Quick Links panel
-  - [~] 11.1 Implement pure Link helpers inside `js/app.js`
+  - [x] 11.1 Implement pure Link helpers inside `js/app.js`
     - Write `validateLink(name, url, currentCount)` — returns `{ valid: boolean, errors: { name?, url?, capacity? } }` checking name length (1–50), URL prefix (`/^https?:\/\//i`), URL length (≤ 2048), and count (< 20).
     - Write `createLink(name, url)` — returns `{ id: Utils.generateId(), name: name.trim(), url }`.
     - Write `deleteLink(links, id)` — returns a new array without the element with matching `id`.
@@ -175,13 +175,13 @@ Build a single-page personal productivity dashboard using pure HTML, CSS, and Va
     - Write `deserializeLinks(json)` — returns parsed array or `[]` on any error.
     - _Requirements: 9.2, 9.3, 9.5, 9.9_
 
-  - [~] 11.2 Write property tests for Link helpers (Properties 18–21)
+  - [-] 11.2 Write property tests for Link helpers (Properties 18–21)
     - **Property 18: Adding a valid link increases link count by exactly one** — Validates: Requirements 9.2
     - **Property 19: Link validation rejects all invalid inputs** — Validates: Requirements 9.3, 9.9
     - **Property 20: Deleting a link removes exactly that link** — Validates: Requirements 9.5
     - **Property 21: Link collection localStorage round-trip** — Validates: Requirements 9.6, 9.7
 
-  - [~] 11.3 Implement `Links` module (DOM + persistence) inside `js/app.js`
+  - [-] 11.3 Implement `Links` module (DOM + persistence) inside `js/app.js`
     - Declare module-scoped state: `let _links = []`.
     - Write `Links.init()` — loads links via `deserializeLinks(Storage.get('tld_links'))`; if `Storage.get` returns `null` and storage appears unavailable, shows error per Req 9.8; renders panel.
     - Write `Links.addLink(name, url)` — calls `validateLink`; on success, pushes `createLink(name, url)` to `_links`, saves, re-renders, clears inputs; on failure, shows field-level inline errors.

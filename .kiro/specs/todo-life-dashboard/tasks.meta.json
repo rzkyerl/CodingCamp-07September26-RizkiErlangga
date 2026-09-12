@@ -15,6 +15,14 @@
     "7.5 Write property test for Timer duration round-trip (Property 8)": {
       "status": "passed",
       "lastRunTimestamp": 1789189352224
+    },
+    "9.4 Write property test for Sort preference round-trip (Property 17)": {
+      "status": "passed",
+      "lastRunTimestamp": 1789190165580
+    },
+    "9.2 Write property tests for Task helpers (Properties 9–16)": {
+      "status": "passed",
+      "lastRunTimestamp": 1789190900041
     }
   },
   "executionHistory": {
@@ -299,6 +307,11 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789186692739
+      },
+      {
+        "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
+        "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
+        "timestamp": 1789189899588
       }
     ],
     "9.3 Implement `Tasks` module (DOM + persistence) inside `js/app.js`": [
@@ -306,6 +319,11 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789186692776
+      },
+      {
+        "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
+        "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
+        "timestamp": 1789189900543
       }
     ],
     "9.4 Write property test for Sort preference round-trip (Property 17)": [
@@ -313,6 +331,16 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789186692827
+      },
+      {
+        "executionId": "45b740fd-14b5-423f-8cb6-725e8f645a43",
+        "chatSessionId": "sess_15e6cebf-ad37-45bc-8217-26c61f9aec19",
+        "timestamp": 1789190100160
+      },
+      {
+        "executionId": "45b740fd-14b5-423f-8cb6-725e8f645a43",
+        "chatSessionId": "sess_15e6cebf-ad37-45bc-8217-26c61f9aec19",
+        "timestamp": 1789190198755
       }
     ],
     "10. Checkpoint — Task List": [
@@ -327,6 +355,16 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789186692901
+      },
+      {
+        "executionId": "45b740fd-14b5-423f-8cb6-725e8f645a43",
+        "chatSessionId": "sess_15e6cebf-ad37-45bc-8217-26c61f9aec19",
+        "timestamp": 1789190106559
+      },
+      {
+        "executionId": "45b740fd-14b5-423f-8cb6-725e8f645a43",
+        "chatSessionId": "sess_15e6cebf-ad37-45bc-8217-26c61f9aec19",
+        "timestamp": 1789190205733
       }
     ],
     "11.2 Write property tests for Link helpers (Properties 18–21)": [
@@ -334,6 +372,11 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789186692931
+      },
+      {
+        "executionId": "45b740fd-14b5-423f-8cb6-725e8f645a43",
+        "chatSessionId": "sess_15e6cebf-ad37-45bc-8217-26c61f9aec19",
+        "timestamp": 1789190237096
       }
     ],
     "11.3 Implement `Links` module (DOM + persistence) inside `js/app.js`": [
@@ -341,6 +384,11 @@
         "executionId": "4a073c09-6b80-4099-a907-87ba1ffddba5",
         "chatSessionId": "sess_b1cce038-d606-4e4c-82d9-73c10ffe1437",
         "timestamp": 1789186692958
+      },
+      {
+        "executionId": "45b740fd-14b5-423f-8cb6-725e8f645a43",
+        "chatSessionId": "sess_15e6cebf-ad37-45bc-8217-26c61f9aec19",
+        "timestamp": 1789190243639
       }
     ],
     "12.1 Wire `DOMContentLoaded` bootstrap in `js/app.js`": [

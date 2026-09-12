@@ -256,8 +256,74 @@ function deserializeTasks(json) {
 
 // =============================================================================
 // Link helpers — pure functions (no DOM dependencies).
-// Full implementations are provided in task 11.1.
 // =============================================================================
+
+/**
+ * Validates a link submission.
+ * Rules:
+ *   - name.trim().length must be >= 1 and <= 50
+ *   - url must begin with "http://" or "https://" (case-insensitive)
+ *   - url.length must be <= 2048
+ *   - currentCount must be < 20 (capacity check)
+ * @param {string} name
+ * @param {string} url
+ * @param {number} currentCount
+ * @returns {{ valid: boolean, errors: { name?: string, url?: string, capacity?: string } }}
+ */
+function validateLink(name, url, currentCount) {
+  const errors = {};
+
+  // Capacity check (checked first so we can reject before field validation)
+  if (currentCount >= 20) {
+    errors.capacity = 'Maximum of 20 links reached.';
+  }
+
+  // Name validation
+  const trimmedName = (name || '').trim();
+  if (trimmedName.length === 0) {
+    errors.name = 'Name is required.';
+  } else if (trimmedName.length > 50) {
+    errors.name = 'Name must be 50 characters or fewer.';
+  }
+
+  // URL validation
+  const trimmedUrl = (url || '');
+  if (!/^https?:\/\//i.test(trimmedUrl)) {
+    errors.url = 'URL must begin with http:// or https://';
+  } else if (trimmedUrl.length > 2048) {
+    errors.url = 'URL must be 2048 characters or fewer.';
+  }
+
+  return {
+    valid: Object.keys(errors).length === 0,
+    errors,
+  };
+}
+
+/**
+ * Creates a new Link object from a name and URL string.
+ * @param {string} name
+ * @param {string} url
+ * @returns {{ id: string, name: string, url: string }}
+ */
+function createLink(name, url) {
+  return {
+    id:   Utils.generateId(),
+    name: name.trim(),
+    url,
+  };
+}
+
+/**
+ * Returns a new array that excludes the link whose `.id` matches `id`.
+ * Does not mutate the input array.
+ * @param {Object[]} links
+ * @param {string} id
+ * @returns {Object[]}
+ */
+function deleteLink(links, id) {
+  return links.filter(l => l.id !== id);
+}
 
 /**
  * Serialises a link array to a JSON string.
@@ -865,9 +931,657 @@ const Timer = {
 };
 
 // =============================================================================
+// Tasks Module
+// Manages the task list: CRUD operations, sorting, persistence, and DOM
+// rendering.  All DOM access is null-guarded so the module does not crash
+// when running inside the Node.js test harness.
+// =============================================================================
+
+// --------------- module-scoped state ----------------------------------------
+
+/** @type {Array<{id:string, title:string, completed:boolean, createdAt:number}>} */
+let _tasks = [];
+
+/** @type {'default'|'az'|'za'} */
+let _sort = 'default';
+
+/**
+ * The id of the task currently being edited, or null when none.
+ * @type {string|null}
+ */
+let _editingId = null;
+
+// --------------- private helpers --------------------------------------------
+
+/**
+ * Shows the storage-unavailable banner when a Storage.set call returns false.
+ */
+function _showStorageBanner() {
+  const banner = document.getElementById('storage-banner');
+  if (banner) banner.classList.add('visible');
+}
+
+/**
+ * Persists the current `_tasks` array to localStorage.
+ * Shows the storage banner if the write fails.
+ */
+function _saveTasks() {
+  const ok = Storage.set(KEYS.TASKS, serializeTasks(_tasks));
+  if (!ok) _showStorageBanner();
+}
+
+/**
+ * Escapes a string for safe insertion into HTML attribute values and text.
+ * Prevents XSS when task titles or link names are inserted into innerHTML.
+ * @param {string} str
+ * @returns {string}
+ */
+function _escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/**
+ * Returns the HTML string for a single task row in read mode.
+ * @param {{id:string, title:string, completed:boolean, createdAt:number}} task
+ * @returns {string}
+ */
+function _renderTaskItemReadMode(task) {
+  const completedClass = task.completed ? ' task-completed' : '';
+  const checkedAttr    = task.completed ? ' checked' : '';
+  const escapedTitle   = _escapeHtml(task.title);
+  const escapedId      = _escapeHtml(task.id);
+
+  return `
+    <li class="task-item${completedClass}" data-id="${escapedId}">
+      <label class="task-checkbox-label">
+        <input
+          type="checkbox"
+          class="task-toggle"
+          ${checkedAttr}
+          aria-label="Mark '${escapedTitle}' as ${task.completed ? 'incomplete' : 'complete'}"
+        >
+      </label>
+      <span class="task-title">${escapedTitle}</span>
+      <div class="task-actions">
+        <button
+          type="button"
+          class="task-edit"
+          aria-label="Edit task: ${escapedTitle}"
+        >✎</button>
+        <button
+          type="button"
+          class="task-delete"
+          aria-label="Delete task: ${escapedTitle}"
+        >✕</button>
+      </div>
+    </li>`.trim();
+}
+
+/**
+ * Returns the HTML string for a single task row in edit mode.
+ * @param {{id:string, title:string, completed:boolean, createdAt:number}} task
+ * @returns {string}
+ */
+function _renderTaskItemEditMode(task) {
+  const escapedTitle = _escapeHtml(task.title);
+  const escapedId    = _escapeHtml(task.id);
+
+  return `
+    <li class="task-item task-item--editing" data-id="${escapedId}">
+      <div class="task-edit-group">
+        <input
+          type="text"
+          class="task-edit-input"
+          value="${escapedTitle}"
+          maxlength="200"
+          aria-label="Edit task title"
+          aria-describedby="task-edit-error-${escapedId}"
+        >
+        <span class="error-msg task-edit-error" id="task-edit-error-${escapedId}" role="alert"></span>
+      </div>
+      <div class="task-actions">
+        <button
+          type="button"
+          class="task-save"
+          aria-label="Save edit"
+        >Save</button>
+        <button
+          type="button"
+          class="task-cancel"
+          aria-label="Cancel edit"
+        >Cancel</button>
+      </div>
+    </li>`.trim();
+}
+
+/**
+ * Returns the HTML string for a task row.
+ * Delegates to read-mode or edit-mode based on `_editingId`.
+ * @param {{id:string, title:string, completed:boolean, createdAt:number}} task
+ * @returns {string}
+ */
+function _renderTaskItem(task) {
+  return task.id === _editingId
+    ? _renderTaskItemEditMode(task)
+    : _renderTaskItemReadMode(task);
+}
+
+/**
+ * Re-renders the full task list.
+ * Calls sortTasks, maps through _renderTaskItem, and writes to #task-list.
+ * Also syncs the sort <select> value to match _sort.
+ */
+function _renderTaskList() {
+  const listEl = document.getElementById('task-list');
+  if (!listEl) return;
+
+  const sorted = sortTasks(_tasks, _sort);
+  listEl.innerHTML = sorted.map(_renderTaskItem).join('');
+
+  // Focus the edit input if we just switched a row into edit mode.
+  if (_editingId !== null) {
+    const editInput = listEl.querySelector('.task-item--editing .task-edit-input');
+    if (editInput) {
+      editInput.focus();
+      // Move caret to end of existing text.
+      const len = editInput.value.length;
+      editInput.setSelectionRange(len, len);
+    }
+  }
+
+  // Sync sort control value.
+  const sortSelect = document.getElementById('task-sort');
+  if (sortSelect && sortSelect.value !== _sort) {
+    sortSelect.value = _sort;
+  }
+}
+
+/**
+ * Shows an inline error on the add-task input.
+ * @param {string} message
+ */
+function _showAddError(message) {
+  const errEl = document.getElementById('task-input-error');
+  if (errEl) errEl.textContent = message;
+}
+
+/**
+ * Clears the inline error on the add-task input.
+ */
+function _clearAddError() {
+  const errEl = document.getElementById('task-input-error');
+  if (errEl) errEl.textContent = '';
+}
+
+/**
+ * Shows an inline error inside the currently-editing task row.
+ * @param {string} id   — id of the task being edited
+ * @param {string} message
+ */
+function _showEditError(id, message) {
+  const errEl = document.getElementById(`task-edit-error-${id}`);
+  if (errEl) errEl.textContent = message;
+}
+
+// --------------- public API -------------------------------------------------
+
+const Tasks = {
+  /**
+   * Initialises the Tasks module.
+   * Loads tasks and sort preference from Storage, renders the list,
+   * and wires all event listeners.
+   */
+  init() {
+    // Restore tasks from Storage.
+    const storedTasks = Storage.get(KEYS.TASKS);
+    _tasks = deserializeTasks(storedTasks);
+
+    // Restore sort preference, defaulting to 'default'.
+    const storedSort = Storage.get(KEYS.SORT);
+    _sort = (storedSort === 'az' || storedSort === 'za') ? storedSort : 'default';
+
+    // Render the initial list.
+    _renderTaskList();
+
+    // Pre-set the sort <select> to the loaded value.
+    const sortSelect = document.getElementById('task-sort');
+    if (sortSelect) {
+      sortSelect.value = _sort;
+      sortSelect.addEventListener('change', () => {
+        Tasks.setSort(sortSelect.value);
+      });
+    }
+
+    // Add-task form (supports both Enter and button click via 'submit').
+    const taskForm = document.getElementById('task-form');
+    if (taskForm) {
+      taskForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const input = document.getElementById('task-input');
+        if (input) Tasks.addTask(input.value);
+      });
+    }
+
+    // Clear add-error on any input to the task title field.
+    const taskInput = document.getElementById('task-input');
+    if (taskInput) {
+      taskInput.addEventListener('input', _clearAddError);
+    }
+
+    // Single delegated click listener on #task-list.
+    const listEl = document.getElementById('task-list');
+    if (listEl) {
+      listEl.addEventListener('click', (e) => {
+        // Find the closest ancestor (or self) with a data-id attribute.
+        const item = e.target.closest('[data-id]');
+        if (!item) return;
+        const id = item.dataset.id;
+
+        if (e.target.closest('.task-toggle')) {
+          Tasks.toggleTask(id);
+        } else if (e.target.closest('.task-edit')) {
+          Tasks.startEdit(id);
+        } else if (e.target.closest('.task-delete')) {
+          Tasks.deleteTask(id);
+        } else if (e.target.closest('.task-save')) {
+          const editInput = item.querySelector('.task-edit-input');
+          const newTitle  = editInput ? editInput.value : '';
+          Tasks.saveEdit(id, newTitle);
+        } else if (e.target.closest('.task-cancel')) {
+          Tasks.cancelEdit(id);
+        }
+      });
+
+      // Clear edit-error on input inside the task list (edit mode input).
+      listEl.addEventListener('input', (e) => {
+        if (e.target.classList.contains('task-edit-input')) {
+          const item  = e.target.closest('[data-id]');
+          if (!item) return;
+          const errEl = document.getElementById(`task-edit-error-${item.dataset.id}`);
+          if (errEl) errEl.textContent = '';
+        }
+      });
+    }
+  },
+
+  /**
+   * Validates a title, checks capacity and duplicates, creates the task,
+   * saves, re-renders, and clears the input.  Shows inline errors on failure.
+   * @param {string} title
+   */
+  addTask(title) {
+    // Validation
+    const v = validateTaskTitle(title);
+    if (!v.valid) {
+      _showAddError(v.error);
+      const input = document.getElementById('task-input');
+      if (input) input.focus();
+      return;
+    }
+
+    // Capacity check (max 100 tasks)
+    if (_tasks.length >= 100) {
+      _showAddError('Maximum of 100 tasks reached.');
+      const input = document.getElementById('task-input');
+      if (input) input.focus();
+      return;
+    }
+
+    // Duplicate check (case-insensitive, trim-invariant)
+    if (isDuplicate(_tasks, title)) {
+      _showAddError('A task with this title already exists.');
+      const input = document.getElementById('task-input');
+      if (input) input.focus();
+      return;
+    }
+
+    // Create and append
+    const task = createTask(title);
+    _tasks.push(task);
+
+    // Persist
+    _saveTasks();
+
+    // Clear input and error, then re-render
+    const input = document.getElementById('task-input');
+    if (input) input.value = '';
+    _clearAddError();
+
+    _editingId = null;
+    _renderTaskList();
+  },
+
+  /**
+   * Flips the completion state of the task with the given id, saves, and re-renders.
+   * @param {string} id
+   */
+  toggleTask(id) {
+    _tasks = _tasks.map(t => t.id === id ? toggleTask(t) : t);
+    _saveTasks();
+    _renderTaskList();
+  },
+
+  /**
+   * Puts the task row with the given id into edit mode and re-renders.
+   * @param {string} id
+   */
+  startEdit(id) {
+    _editingId = id;
+    _renderTaskList();
+  },
+
+  /**
+   * Validates newTitle, updates the task, saves, and returns to read mode.
+   * Shows an inline error inside the edit row on failure.
+   * @param {string} id
+   * @param {string} newTitle
+   */
+  saveEdit(id, newTitle) {
+    const v = validateTaskTitle(newTitle);
+    if (!v.valid) {
+      _showEditError(id, v.error);
+      return;
+    }
+
+    // Duplicate check — exclude the task being edited from the comparison.
+    const otherTasks = _tasks.filter(t => t.id !== id);
+    if (isDuplicate(otherTasks, newTitle)) {
+      _showEditError(id, 'A task with this title already exists.');
+      return;
+    }
+
+    _tasks = _tasks.map(t => t.id === id ? editTask(t, newTitle) : t);
+    _editingId = null;
+    _saveTasks();
+    _renderTaskList();
+  },
+
+  /**
+   * Cancels the in-progress edit and returns the row to read mode.
+   * @param {string} id
+   */
+  cancelEdit(id) {
+    if (_editingId === id) _editingId = null;
+    _renderTaskList();
+  },
+
+  /**
+   * Removes the task with the given id, saves, and re-renders.
+   * @param {string} id
+   */
+  deleteTask(id) {
+    if (_editingId === id) _editingId = null;
+    _tasks = deleteTask(_tasks, id);
+    _saveTasks();
+    _renderTaskList();
+  },
+
+  /**
+   * Persists the new sort option and re-renders the task list.
+   * @param {'default'|'az'|'za'} option
+   */
+  setSort(option) {
+    _sort = option;
+    const ok = Storage.set(KEYS.SORT, option);
+    if (!ok) _showStorageBanner();
+    _renderTaskList();
+  },
+};
+
+// =============================================================================
+// Links Module
+// Manages the Quick Links panel: loads saved links from Storage, renders
+// clickable link buttons, supports adding and deleting links.
+// All DOM access is null-guarded so the module does not crash when running
+// inside the Node.js test harness.
+// =============================================================================
+
+/** Module-scoped state: in-memory links array. */
+let _links = [];
+
+/**
+ * Renders the link list by rewriting the #link-list element's innerHTML.
+ * Each link is a <li> containing:
+ *   - an <a> (opens URL in new tab) acting as the link button
+ *   - a <button class="link-delete"> carrying data-id for delegation
+ * If there are no links, shows a placeholder message.
+ */
+function _renderLinkList() {
+  const listEl = document.getElementById('link-list');
+  if (!listEl) return;
+
+  if (_links.length === 0) {
+    listEl.innerHTML =
+      '<li class="link-list__empty">No links saved yet. Add one above.</li>';
+    return;
+  }
+
+  listEl.innerHTML = _links.map(link => {
+    // Escape attribute values to prevent HTML injection.
+    const safeName = link.name
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    const safeUrl = link.url
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    return `<li class="link-item" data-id="${link.id}">
+  <a
+    class="link-btn"
+    href="${safeUrl}"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Open ${safeName} in a new tab"
+  >${safeName}</a>
+  <button
+    class="link-delete"
+    data-id="${link.id}"
+    aria-label="Delete link ${safeName}"
+    type="button"
+  >×</button>
+</li>`;
+  }).join('');
+}
+
+/**
+ * Shows the storage-unavailable banner.
+ */
+function _showLinkStorageBanner() {
+  const banner = document.getElementById('storage-banner');
+  if (banner) banner.classList.add('visible');
+}
+
+/**
+ * Clears inline error messages on the add-link form.
+ */
+function _clearLinkErrors() {
+  const nameErr     = document.getElementById('link-name-error');
+  const urlErr      = document.getElementById('link-url-error');
+  const capacityErr = document.getElementById('link-capacity-error');
+  if (nameErr)     nameErr.textContent     = '';
+  if (urlErr)      urlErr.textContent      = '';
+  if (capacityErr) capacityErr.textContent = '';
+}
+
+const Links = {
+  /**
+   * Initialises the Quick Links panel.
+   *
+   * - Loads links from Storage via deserializeLinks(Storage.get('tld_links')).
+   * - If Storage.get returns null (storage blocked/unavailable), shows Req 9.8
+   *   error in #link-load-error.
+   * - Renders the panel.
+   * - Attaches the add-link form submit listener and the delegated click
+   *   listener on #link-list.
+   */
+  init() {
+    const raw = Storage.get(KEYS.LINKS);
+
+    if (raw === null) {
+      // null could mean: nothing saved yet (first run) OR storage unavailable.
+      // We treat a completely absent entry as first-run (empty list) and only
+      // show the load-error when we have evidence storage is broken — i.e.
+      // Storage.set returns false for a no-op test write.
+      const testOk = Storage.set(KEYS.LINKS, Storage.get(KEYS.LINKS) ?? '[]');
+      if (!testOk) {
+        // Storage is genuinely unavailable — show Req 9.8 error.
+        const loadErrEl = document.getElementById('link-load-error');
+        if (loadErrEl) {
+          loadErrEl.textContent = 'Saved links could not be restored — storage is unavailable.';
+          loadErrEl.removeAttribute('hidden');
+        }
+      }
+      _links = [];
+    } else {
+      _links = deserializeLinks(raw);
+    }
+
+    _renderLinkList();
+
+    // ---- Wire the add-link form submit listener ----
+    const form = document.getElementById('link-add-form');
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nameInput = document.getElementById('link-name-input');
+        const urlInput  = document.getElementById('link-url-input');
+        const name = nameInput ? nameInput.value : '';
+        const url  = urlInput  ? urlInput.value  : '';
+        Links.addLink(name, url);
+      });
+    }
+
+    // ---- Wire input events to clear errors on user re-type ----
+    const nameInput = document.getElementById('link-name-input');
+    const urlInput  = document.getElementById('link-url-input');
+
+    if (nameInput) {
+      nameInput.addEventListener('input', () => {
+        const errEl = document.getElementById('link-name-error');
+        if (errEl) errEl.textContent = '';
+      });
+    }
+
+    if (urlInput) {
+      urlInput.addEventListener('input', () => {
+        const errEl = document.getElementById('link-url-error');
+        if (errEl) errEl.textContent = '';
+      });
+    }
+
+    // ---- Wire delegated click listener on #link-list ----
+    const listEl = document.getElementById('link-list');
+    if (listEl) {
+      listEl.addEventListener('click', (e) => {
+        const deleteBtn = e.target.closest('.link-delete');
+        if (deleteBtn) {
+          const id = deleteBtn.dataset.id;
+          if (id) Links.deleteLink(id);
+          return;
+        }
+        // Clicks on the <a> element are handled natively by the browser
+        // (href + target="_blank").  No additional JS needed here.
+      });
+    }
+  },
+
+  /**
+   * Validates and adds a new link.
+   * On success: pushes to _links, persists, re-renders, clears inputs.
+   * On failure: shows field-level inline errors.
+   *
+   * @param {string} name
+   * @param {string} url
+   */
+  addLink(name, url) {
+    _clearLinkErrors();
+
+    const result = validateLink(name, url, _links.length);
+
+    if (!result.valid) {
+      if (result.errors.capacity) {
+        const capacityErr = document.getElementById('link-capacity-error');
+        if (capacityErr) capacityErr.textContent = result.errors.capacity;
+      }
+      if (result.errors.name) {
+        const nameErr = document.getElementById('link-name-error');
+        if (nameErr) nameErr.textContent = result.errors.name;
+        const nameInput = document.getElementById('link-name-input');
+        if (nameInput) nameInput.focus();
+      }
+      if (result.errors.url) {
+        const urlErr = document.getElementById('link-url-error');
+        if (urlErr) urlErr.textContent = result.errors.url;
+        // Only move focus to URL input if name was valid (don't override name focus).
+        if (!result.errors.name) {
+          const urlInput = document.getElementById('link-url-input');
+          if (urlInput) urlInput.focus();
+        }
+      }
+      return;
+    }
+
+    // Create and append the new link.
+    const link = createLink(name, url);
+    _links.push(link);
+
+    // Persist — show banner on storage failure.
+    const ok = Storage.set(KEYS.LINKS, serializeLinks(_links));
+    if (!ok) _showLinkStorageBanner();
+
+    // Re-render and clear inputs.
+    _renderLinkList();
+
+    const nameInput = document.getElementById('link-name-input');
+    const urlInput  = document.getElementById('link-url-input');
+    if (nameInput) { nameInput.value = ''; nameInput.focus(); }
+    if (urlInput)  urlInput.value = '';
+  },
+
+  /**
+   * Removes the link with the given id and re-renders.
+   *
+   * @param {string} id
+   */
+  deleteLink(id) {
+    _links = deleteLink(_links, id);
+
+    const ok = Storage.set(KEYS.LINKS, serializeLinks(_links));
+    if (!ok) _showLinkStorageBanner();
+
+    _renderLinkList();
+  },
+};
+
+// =============================================================================
 // Node.js export guard — allows pure helpers to be imported in test files
 // while the file continues to work as a plain browser <script>.
 // =============================================================================
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    Theme.init();
+    Greeting.init();
+    Timer.init();
+    Tasks.init();
+    Links.init();
+
+    const banner = document.getElementById('storage-banner');
+    const closeBanner = document.querySelector('.banner-close');
+    if (banner && closeBanner) {
+      closeBanner.addEventListener('click', () => banner.classList.remove('visible'));
+    }
+  });
+}
+
 if (typeof module !== 'undefined') {
   module.exports = {
     ...(module.exports || {}),
@@ -885,6 +1599,9 @@ if (typeof module !== 'undefined') {
     serializeTasks,
     deserializeTasks,
     // Link helpers
+    validateLink,
+    createLink,
+    deleteLink,
     serializeLinks,
     deserializeLinks,
     // Theme helpers
@@ -898,5 +1615,10 @@ if (typeof module !== 'undefined') {
     // Timer helpers
     formatTimer,
     validateDuration,
+    // Tasks module
+    Tasks,
+    // Task helpers are already exported above (validateTaskTitle, isDuplicate, etc.)
+    // Links module
+    Links,
   };
 }
